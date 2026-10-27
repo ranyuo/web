@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>INSTITUTO PUBLICO DE ICA – Portal Institucional</title>
-<meta name="description" content="Portal de demostración de INSTITUTO PUBLICO DE ICA: formación técnica y servicios institucionales.">
+<title><?= htmlspecialchars($bootstrap['data']['config']['seo']['titulo'] ?? $bootstrap['data']['config']['inst']['nombre'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></title>
+<meta name="description" content="<?= htmlspecialchars($bootstrap['data']['config']['seo']['descripcion'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#0b1d3f">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%230a2a5e'/%3E%3Cpath d='M14 30 32 20l18 10-18 10z' fill='%23f2b705'/%3E%3Cpath d='M22 35v8c6 5 14 5 20 0v-8' fill='none' stroke='%23fff' stroke-width='3'/%3E%3C/svg%3E">
@@ -2287,11 +2287,11 @@ const FUENTES = [
   ["web","Web institucional","Roboto Condensed + Roboto",'"Roboto Condensed","Arial Narrow",system-ui,sans-serif','"Roboto","Segoe UI",system-ui,sans-serif'],
   ["amigable","Amigable","Poppins + Nunito Sans",'"Poppins","Segoe UI",system-ui,sans-serif','"Nunito Sans","Segoe UI",system-ui,sans-serif']];
 const TAMANOS = [["s","Pequeño","14px"],["m","Normal","15px"],["l","Grande","16.5px"]];
-const AP_DEF = {tema:"ica", fuente:"moderna", tam:"m", logo:"", titulo:"Intranet Ica"};
+const AP_DEF = {tema:"ica", fuente:"moderna", tam:"m", logo:"", titulo:""};
 const ap = () => { let a = null; try{ a = DB && DB.cfg && DB.cfg.ap }catch(e){} return Object.assign({}, AP_DEF, a || {}) };
 function setDocs(patch, msg){ if(lvl("config") < 2) return; DB.cfg.docs = Object.assign(docCfg(), patch); log("Configurar documentos","Configuración",Object.keys(patch).join(", ")); if(!save())return false; if(msg) toast(msg); render() }
 function applyAp(){ /* la apariencia la define el portal (Temas y apariencia) */ }
-const sealHtml = (cls) => { const a = ap(); return a.logo ? `<div class="seal logo ${cls||""}"><img src="${esc(a.logo)}" alt="Logo de ${esc(DB.cfg.siglas)}"></div>` : `<div class="seal ${cls||""}">IP<br>ICA</div>` };
+const sealHtml = (cls) => { const a = ap(); return a.logo ? `<div class="seal logo ${cls||""}"><img src="${esc(a.logo)}" alt="Logo de ${esc(DB.cfg.siglas)}"></div>` : `<div class="seal ${cls||""}">${esc(DB.cfg.siglas)}</div>` };
 function setAp(patch, msg){ DB.cfg.ap = Object.assign(ap(), patch); applyAp(); if(!save())return false; if(msg) toast(msg); render() }
 const lvl = m => S.user ? ((DB.perms[S.user.rol]||{})[m] || 0) : 0;
 const R = () => S.user ? S.user.rol : "pub";
@@ -2491,7 +2491,7 @@ function pdfLogo(doc, img, x, y, box, align){
   if(!img || !img.src) return 0; const r = img.w / img.h, w = r >= 1 ? box : box * r, h = r >= 1 ? box / r : box;
   try{ doc.addImage(img.src, "PNG", align === "right" ? x - w : x, y + (box - h)/2, w, h) }catch(e){ return 0 } return w;
 }
-function pdfSeal(doc, x, y, d, col){ doc.setDrawColor(...col); doc.setLineWidth(.6); doc.circle(x + d/2, y + d/2, d/2); doc.setFont("helvetica","bold"); doc.setFontSize(5.5); doc.setTextColor(...col); doc.text("IP", x + d/2, y + d/2 - .6, {align:"center"}); doc.text("ICA", x + d/2, y + d/2 + 2.2, {align:"center"}); doc.setLineWidth(.2) }
+function pdfSeal(doc, x, y, d, col){ doc.setDrawColor(...col); doc.setLineWidth(.6); doc.circle(x + d/2, y + d/2, d/2); doc.setFont("helvetica","bold"); doc.setFontSize(5.5); doc.setTextColor(...col); doc.text(doc.splitTextToSize(DB.cfg.siglas, d - 2).slice(0, 2), x + d/2, y + d/2 - .6, {align:"center"}); doc.setLineWidth(.2) }
 function pdfHeader(doc, title, sub){
   const W = doc.internal.pageSize.getWidth(), C = docCfg(), col = hexRgb(docColor()), band = C.estilo !== "blanco";
   if(band){ doc.setFillColor(...col); doc.rect(0,0,W,24,"F") }
@@ -2702,7 +2702,7 @@ ENT.titulos = { col:"titulos", one:"título", title:"Registro institucional de t
     {k:"culm",l:"Fecha de culminación",t:"date",req:true},
     {k:"tit",l:"Fecha de titulación",t:"date",req:true,def:today},
     {k:"cod",l:"Código institucional del título",req:true,uniq:true,upper:true},
-    {k:"resol",l:"Resolución directoral",req:true,w:1,ph:"R.D. N.º 000-2026-IESTP-ICA"}],
+    {k:"resol",l:"Resolución directoral",req:true,w:1,ph:"R.D. N.º 000-2026-INSTITUTO"}],
   check:(v,row) => { const er = {}; if(v.culm && v.tit && v.tit < v.culm) er.tit = "Debe ser posterior a la fecha de culminación."; if(DB.titulos.some(t => t.est === v.est && (!row || t.id !== row.id))) er.est = "Este egresado ya tiene un título registrado."; return er },
   after:r => { const e = est(r.est); if(e.id) e.estado = "Titulado"; const u = HOST.users().find(x => x.vin === "est:"+r.est); if(u) notify("u:"+u.id,"Tu título fue registrado en la intranet institucional","titulos") },
   cols:[{h:"Código",v:r => mono(r.cod)},{h:"Titulado",v:r => esc(est(r.est).nom)},{h:"DNI",v:r => mono(est(r.est).dni)},{h:"Programa",v:r => prog(est(r.est).prog).cod},{h:"Culminación",v:r => fd(r.culm)},{h:"Titulación",v:r => fd(r.tit)},{h:"Resolución",v:r => esc(r.resol)}],
@@ -2813,7 +2813,7 @@ function renderLogin(){
     <h1>Intranet Institucional</h1>
     <p>Plataforma de gestión académica y administrativa: horarios, certificaciones, títulos, trámite documentario, libro de reclamaciones, bolsa laboral y portafolio docente en un solo sistema.</p>
     <div class="mods">${MODS.filter(m => m[2]).map(m => `<div>${ICO[m[0]] || ""}<span>${m[2]}</span>${m[1]}</div>`).join("")}</div>
-    <p class="fine">Portal Web Institucional 2026 · INSTITUTO PUBLICO DE ICA</p>
+    <p class="fine">Portal Web Institucional 2026 · ${esc(DB.cfg.nombre)}</p>
   </section>
   <section class="lf">
     <div class="login-tools">${themeBtn()}</div>
@@ -2870,7 +2870,7 @@ function renderApp(){
   let groups = {}; MODS.forEach(m => { if(lvl(m[0]) > 0){ (groups[m[3] || "General"] = groups[m[3] || "General"] || []).push(m) } });
   const cur = MODS.find(m => m[0] === S.view);
   const nots = myNotifs(), unread = nots.filter(n => !n.leido.includes(S.user.id)).length;
-  const side = `<div class="brandbox">${sealHtml()}<div><b>${esc(ap().titulo || "Intranet Ica")}</b><small>Gestión académica y administrativa · ${esc(DB.cfg.periodo)}</small></div></div>
+  const side = `<div class="brandbox">${sealHtml()}<div><b>${esc(ap().titulo || ("Intranet " + DB.cfg.siglas))}</b><small>Gestión académica y administrativa · ${esc(DB.cfg.periodo)}</small></div></div>
     ${Object.entries(groups).map(([g,ms]) => `<nav class="navgroup"><span>${g}</span>${ms.map(m => { const n = navCount(m[0]); return `<button class="nav ${S.view === m[0] ? "on" : ""}" data-go="${m[0]}"><span class="nl">${ICO[m[0]] || ""}<span>${m[1]}</span></span>${n ? `<span class="cnt">${n}</span>` : `<span class="code">${m[2]}</span>`}</button>` }).join("")}</nav>`).join("")}
     <div class="side-foot"><span>${esc(DB.cfg.nombre)}</span><button data-act="toPublicApp">${ICO.globe}Ver portal público</button></div>`;
   return `<div class="app"><aside class="side ${S.ui.menu ? "open" : ""}" id="side" aria-label="Módulos">${side}</aside>
@@ -4400,8 +4400,8 @@ function img(src, fallback = 'ph:campus:1') {
   if (IMG_CACHE[src]) return IMG_CACHE[src];
   const [, t, ...rest] = src.split(':'); const s = rest.join(':');
   let out;
-  if (t === 'campus') out = svgURI(campusSVG(s, 1600, 600, (DB && DB.config ? DB.config.inst.siglaBanner : 'INSTITUTO PUBLICO DE ICA')));
-  else if (t === 'campus43') out = svgURI(campusSVG(s, 1200, 900, (DB && DB.config ? DB.config.inst.siglaBanner : 'INSTITUTO PUBLICO DE ICA')));
+  if (t === 'campus') out = svgURI(campusSVG(s, 1600, 600, (DB && DB.config ? DB.config.inst.nombreCorto : 'INSTITUTO')));
+  else if (t === 'campus43') out = svgURI(campusSVG(s, 1200, 900, (DB && DB.config ? DB.config.inst.nombreCorto : 'INSTITUTO')));
   else if (t === 'person') out = svgURI(portraitSVG(s.replace(/^[fm]\|/, ''), s.startsWith('f|')));
   else if (t === 'topic') { const [i, seed, label] = s.split('|'); out = svgURI(topicSVG(seed || i, i, 800, 500, label || '')); }
   else if (t === 'logo') out = svgURI(logoSVG(s || 'ICA'));
@@ -4726,9 +4726,10 @@ const persona = id => P('personas').find(p => p.id === id);
 const fullName = p => p ? `${p.titulo ? p.titulo + ' ' : ''}${p.nombres} ${p.apellidos}` : '';
 const progs = () => sortO(P('programas').filter(isPub));
 const progById = id => P('programas').find(p => p.id === id);
-const ext = id => { const e = coll('enlaces').find(x => x.id === id); return e && e.estado === 'Activo' && e.url ? e.url : ''; };
+const safePortalLink = (value, internal = true) => { if (typeof value !== 'string' || !value) return false; if (internal && value.startsWith('#/')) return true; try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol); } catch { return false; } };
+const ext = id => { const e = coll('enlaces').find(x => x.id === id); return e && !e.deleted && e.estado === 'Activo' && safePortalLink(e.url, false) ? e.url : ''; };
 const linkAttrs = href => /^https?:/.test(href) ? `href="${esc(href)}" target="_blank" rel="noopener noreferrer"` : `href="${esc(href)}"`;
-const resolveLink = l => l && l.startsWith('ext:') ? ext(l.slice(4)) : l;
+const resolveLink = l => typeof l === 'string' && l.startsWith('ext:') ? ext(l.slice(4)) : safePortalLink(l) ? l : '';
 const newsVisible = n => isPub(n) && (n._preview || new Date(n.fecha) <= new Date());
 const catName = id => (coll('categoriasNoticia').find(c => c.id === id) || {}).nombre || 'General';
 const admVigente = () => P('admisiones').filter(a => (a.estado === 'Publicado' || a._preview) && a.vigente).sort((a, b) => b.anio - a.anio)[0];
@@ -4845,7 +4846,7 @@ R('', path => {
   const c = DB.config, h = c.home; const i = inst();
   setSEO({ title: '', desc: c.seo.descripcion });
   const blocks = {
-    slider: () => { const sl = sortO(P('slides').filter(isPub)); if (!sl.length) return ''; return `<section class="hero" aria-roledescription="carrusel" aria-label="Destacados">${sl.map((s, k) => `<div class="slide ${k ? '' : 'on'}" role="group" aria-roledescription="diapositiva" aria-label="${k + 1} de ${sl.length}"><img src="${img(s.imagen)}" alt="" ${k ? 'loading="lazy"' : ''}><div class="cap"><div class="wrap"><span class="hero-kicker">${ic('grad')} ${esc(inst().nombreCorto)}</span><h2>${esc(s.titulo)}</h2><p>${esc(s.texto)}</p>${s.boton && s.enlace ? `<a class="btn gold" ${linkAttrs(resolveLink(s.enlace))}>${esc(s.boton)} ${ic('arrow').replace('<svg', '<svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"')}</a>` : ''}</div></div></div>`).join('')}${sl.length > 1 ? `<button class="hero-arrow l" data-sl="-1" aria-label="Diapositiva anterior">‹</button><button class="hero-arrow r" data-sl="1" aria-label="Diapositiva siguiente">›</button><div class="hero-dots">${sl.map((_, k) => `<button data-dot="${k}" aria-label="Ir a diapositiva ${k + 1}" aria-current="${k === 0}"></button>`).join('')}</div>` : ''}</section>`; },
+    slider: () => { const sl = sortO(P('slides').filter(isPub)); if (!sl.length) return ''; return `<section class="hero" aria-roledescription="carrusel" aria-label="Destacados">${sl.map((s, k) => `<div class="slide ${k ? '' : 'on'}" role="group" aria-roledescription="diapositiva" aria-label="${k + 1} de ${sl.length}"><img src="${img(s.imagen)}" alt="" ${k ? 'loading="lazy"' : ''}><div class="cap"><div class="wrap"><span class="hero-kicker">${ic('grad')} ${esc(inst().nombreCorto)}</span><h2>${esc(s.titulo)}</h2><p>${esc(s.texto)}</p>${s.boton && resolveLink(s.enlace) ? `<a class="btn gold" ${linkAttrs(resolveLink(s.enlace))}>${esc(s.boton)} ${ic('arrow').replace('<svg', '<svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"')}</a>` : ''}</div></div></div>`).join('')}${sl.length > 1 ? `<button class="hero-arrow l" data-sl="-1" aria-label="Diapositiva anterior">‹</button><button class="hero-arrow r" data-sl="1" aria-label="Diapositiva siguiente">›</button><div class="hero-dots">${sl.map((_, k) => `<button data-dot="${k}" aria-label="Ir a diapositiva ${k + 1}" aria-current="${k === 0}"></button>`).join('')}</div>` : ''}</section>`; },
     accesos: () => `<section class="wrap quick" aria-label="Accesos rápidos"><div class="grid g4">${h.accesos.map(a => { const u = resolveLink(a.enlace); return u ? `<a ${linkAttrs(u)}><span class="ic">${ic(a.icono)}</span><span><strong>${esc(a.titulo)}</strong><small>${esc(a.texto)}</small></span></a>` : ''; }).join('')}</div></section>`,
     bienvenida: () => { const pr = page('presentacion'); const dir = persona((P('jerarquica').find(j => j.esDirector) || {}).personaId); if (!pr || !isPub(pr)) return ''; const ps = (pr.contenido.match(/<p>[\s\S]*?<\/p>/g) || []).slice(0, 2).join(''); return `<section class="sec"><div class="wrap welcome"><img src="${img(dir && dir.foto)}" alt="Fotografía de ${esc(fullName(dir))}" loading="lazy"><div><div class="sec-h" style="text-align:left;margin:0 0 10px"><span class="kicker">Bienvenida</span><h2>Mensaje de la Dirección General</h2></div><div class="prose">${sanitize(ps)}</div><p><strong>${esc(fullName(dir))}</strong><br><span style="color:var(--muted)">${esc((P('jerarquica').find(j => j.esDirector) || {}).cargo || '')}</span></p><a class="btn" href="#/nosotros/presentacion">Leer presentación completa</a></div></div></section>`; },
     cifras: () => `<section class="sec stats" aria-label="Cifras institucionales"><div class="wrap grid g4">${h.cifras.map((x, k) => `<div class="stat"><span class="st-ic">${ic(['calendar', 'grad', 'users', 'award', 'star', 'building'][k % 6])}</span><b>${esc(cifra(x.valor))}</b><span>${esc(x.label)}</span><small>Corte: ${esc(x.corte)}</small></div>`).join('')}</div></section>`,
@@ -4858,7 +4859,9 @@ R('', path => {
     enlaces: () => `<section class="sec alt"><div class="wrap"><div class="sec-h"><span class="kicker">Plataformas del Estado</span><h2>Enlaces institucionales</h2></div>${mineduLinks()}</div></section>`,
   };
   const body = h.bloques.filter(b => b.on && blocks[b.k]).map(b => blocks[b.k]()).join('');
-  return `<p class="home-announcement">¡Admisión 2026 abierta! Consulta nuestros programas de estudio</p>${headerHTML(path)}<main id="contenido" tabindex="-1"><h1 class="sr-only">${esc(inst().nombre)} – Portal institucional</h1>${body}</main>${footerHTML()}`;
+  const admission = admVigente();
+  const announcement = admission ? `<p class="home-announcement">Admisión ${esc(admission.anio)} · ${esc(admission.subtitulo || 'Consulta nuestros programas de estudio')}</p>` : '';
+  return `${announcement}${headerHTML(path)}<main id="contenido" tabindex="-1"><h1 class="sr-only">${esc(inst().nombre)} – Portal institucional</h1>${body}</main>${footerHTML()}`;
 });
 function cifra(v) {
   if (!String(v).startsWith('auto:')) return v;
@@ -5572,20 +5575,32 @@ function fieldHTML(f, rec) {
 function rowsHTML(f, rows) {
   return `<div class="tbl-wrap" data-rows="${f.n}"><table class="tbl light subtbl"><thead><tr>${f.cols.map(c => `<th>${esc(c.l)}</th>`).join('')}<th style="width:110px"></th></tr></thead><tbody>${rows.map((r, i) => `<tr>${f.cols.map(c => `<td>${c.t === 'select' ? `<select class="inp" data-ri="${i}" data-rc="${c.n}" aria-label="${esc(c.l)}">${(typeof c.opts === 'function' ? c.opts() : c.opts).map(o => Array.isArray(o) ? o : [o, o]).map(([a, b]) => `<option value="${esc(a)}" ${String(r[c.n]) === String(a) ? 'selected' : ''}>${esc(b)}</option>`).join('')}</select>` : c.t === 'file' ? `<span style="display:flex;gap:4px;align-items:center">${r[c.n] ? `<span class="file-chip" style="max-width:180px;overflow:hidden"><span class="ft">PDF</span>${esc(clamp(r[c.n].original || r[c.n].nombre, 22))}</span><button type="button" class="icon-btn" data-rfx="${i}|${c.n}" title="Retirar archivo">${ic('x')}</button>` : ''}<label class="btn xs ghost" style="cursor:pointer">${r[c.n] ? 'Cambiar' : 'Adjuntar'}<input type="file" accept=".pdf" hidden data-rf="${i}|${c.n}"></label></span>` : `<input class="inp" type="${c.t || 'text'}" value="${esc(r[c.n] ?? '')}" data-ri="${i}" data-rc="${c.n}" aria-label="${esc(c.l)}" ${c.w ? `style="width:${c.w}"` : ''}>`}</td>`).join('')}<td class="row-acts"><button type="button" class="icon-btn" data-rup="${i}" title="Subir">${ic('up')}</button><button type="button" class="icon-btn" data-rdn="${i}" title="Bajar">${ic('down')}</button><button type="button" class="icon-btn del" data-rdel="${i}" title="Quitar fila">${ic('trash')}</button></td></tr>`).join('') || `<tr><td colspan="${f.cols.length + 1}" style="color:var(--muted)">Sin registros. Use “Agregar”.</td></tr>`}</tbody></table><div style="padding:8px"><button type="button" class="btn xs sec" data-radd="${f.n}">${ic('plus').replace('<svg', '<svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2"')} Agregar</button></div></div>`;
 }
+const EDITOR_UPLOADS = new Set();
+async function editorFileTask(input, task) {
+  const token = {}; const disabled = input.disabled;
+  EDITOR_UPLOADS.add(token); input._portalUploading = true; input.disabled = true;
+  try { await task(); }
+  catch (error) { input.value = ''; toast(error.message || 'No se pudo cargar el archivo. Inténtalo nuevamente.', 'err'); }
+  finally { EDITOR_UPLOADS.delete(token); input._portalUploading = false; input.disabled = disabled; }
+}
 function bindFields(fields, work, root, rerender) {
+  const sync = () => { readSimple(fields, root, work); if (root.estado) work.estado = root.estado.value; };
+  root.addEventListener('input', sync); root.addEventListener('change', sync);
   bindRTE(root, (n, html) => work[n] = html);
-  $$('[data-imgf]', root).forEach(inp => inp.onchange = async () => {
+  $$('[data-imgf]', root).forEach(inp => inp.onchange = () => editorFileTask(inp, async () => {
     const f = inp.files[0]; if (!f) return; const n = inp.dataset.imgf; const er = checkFile(f, 'image'); if (er) { inp.value = ''; return toast(er, 'err'); }
     if (work[n] && !await confirmBox('¿Reemplazar la imagen actual por la nueva?', { ok: 'Reemplazar', danger: false })) { inp.value = ''; return; }
-    work[n] = await compressImage(f); rerender(); toast('Imagen cargada y optimizada (' + fsize(work[n].length * .75) + ').', 'ok');
-  });
+    const image = await compressImage(f); if (ADM.work !== work) return;
+    work[n] = image; rerender(); toast('Imagen cargada y optimizada (' + fsize(work[n].length * .75) + ').', 'ok');
+  }));
   $$('[data-imgx]', root).forEach(b => b.onclick = async () => { if (await confirmBox('¿Retirar la imagen? Se usará la imagen institucional predeterminada.', { ok: 'Retirar' })) { work[b.dataset.imgx] = ''; rerender(); } });
-  $$('[data-ff]', root).forEach(inp => inp.onchange = async () => {
+  $$('[data-ff]', root).forEach(inp => inp.onchange = () => editorFileTask(inp, async () => {
     const f = inp.files[0]; if (!f) return; const n = inp.dataset.ff; const er = checkFile(f, 'pdf'); if (er) { inp.value = ''; return toast(er, 'err'); }
 
     if (work[n] && !await confirmBox(`Ya existe un documento vigente (${esc(work[n].original || work[n].nombre)}). ¿Reemplazarlo? La versión anterior quedará en el historial.`, { ok: 'Reemplazar', danger: false })) { inp.value = ''; return; }
-    work[n] = {...await portalUpload(f),fecha:nowISO(),por:currentUser().usuario}; rerender();
-  });
+    const file = await portalUpload(f); if (ADM.work !== work) return;
+    work[n] = {...file,fecha:nowISO(),por:currentUser().usuario}; rerender();
+  }));
   $$('[data-fv]', root).forEach(b => b.onclick = () => openDoc(work[b.dataset.fv]));
   $$('[data-fd]', root).forEach(b => b.onclick = () => downloadDoc(work[b.dataset.fd]));
   $$('[data-fx]', root).forEach(b => b.onclick = async () => { if (await confirmBox('¿Retirar el documento? Dejará de mostrarse en el portal.', { ok: 'Retirar' })) { work[b.dataset.fx] = null; rerender(); } });
@@ -5598,7 +5613,7 @@ function bindFields(fields, work, root, rerender) {
     $$('[data-rdel]', box).forEach(b => b.onclick = async () => { if (await confirmBox('¿Quitar esta fila?', { ok: 'Quitar' })) { work[f.n].splice(+b.dataset.rdel, 1); rerender(); } });
     $$('[data-rup]', box).forEach(b => b.onclick = () => { const i = +b.dataset.rup; if (i > 0) { const a = work[f.n]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; rerender(); } });
     $$('[data-rdn]', box).forEach(b => b.onclick = () => { const i = +b.dataset.rdn; const a = work[f.n]; if (i < a.length - 1) { [a[i + 1], a[i]] = [a[i], a[i + 1]]; rerender(); } });
-    $$('[data-rf]', box).forEach(inp => inp.onchange = async () => { const fl = inp.files[0]; if (!fl) return; const er = checkFile(fl, 'pdf'); if (er) return toast(er, 'err');  const [i, c] = inp.dataset.rf.split('|'); work[f.n][+i][c] = {...await portalUpload(fl),fecha:nowISO()}; rerender(); });
+    $$('[data-rf]', box).forEach(inp => inp.onchange = () => editorFileTask(inp, async () => { const fl = inp.files[0]; if (!fl) return; const er = checkFile(fl, 'pdf'); if (er) return toast(er, 'err'); const [i, c] = inp.dataset.rf.split('|'); const row = work[f.n][+i]; const file = await portalUpload(fl); if (ADM.work !== work || !work[f.n].includes(row)) return; row[c] = {...file,fecha:nowISO()}; rerender(); }));
     $$('[data-rfx]', box).forEach(b => b.onclick = () => { const [i, c] = b.dataset.rfx.split('|'); work[f.n][+i][c] = null; rerender(); });
   });
   fields.filter(f => f.t === 'custom' && f.bind).forEach(f => f.bind(work, $(`[data-custom="${f.n}"]`, root), rerender));
@@ -5629,7 +5644,7 @@ function crudList(spec) {
   if (st.q) { const t = normTitle(st.q); rows = rows.filter(r => normTitle((spec.search || ['titulo', 'nombre']).map(k => typeof k === 'function' ? k(r) : r[k]).join(' ')).includes(t)); }
   (spec.filters || []).forEach(fl => { const v = st.f[fl.n]; if (v) rows = rows.filter(r => fl.test ? fl.test(r, v) : String(r[fl.n]) === v); });
   rows.sort(spec.sort || ((a, b) => (a.orden ?? 0) - (b.orden ?? 0) || String(b.modEn || '').localeCompare(String(a.modEn || ''))));
-  const tot = rows.length; const pg = rows.slice((st.page - 1) * st.size, st.page * st.size);
+  const tot = rows.length; st.page = Math.max(1, Math.min(st.page, Math.ceil(tot / st.size) || 1)); const pg = rows.slice((st.page - 1) * st.size, st.page * st.size);
   const canCreate = spec.create !== false && (!spec.canCreate || spec.canCreate());
   const html = admHead(spec.title, spec.sub || '', `${spec.extraActs ? spec.extraActs() : ''}${spec.exportCSV ? `<button class="btn sec" data-csv>${ic('download').replace('<svg', '<svg style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2"')} Exportar CSV</button>` : ''}${canCreate ? `<a class="btn" href="#/admin/${spec.key}/nuevo">${ic('plus').replace('<svg', '<svg style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2"')} ${/^(noticia|categoría|convocatoria|diapositiva|página)$/.test(spec.singular) ? 'Nueva' : 'Nuevo'} ${esc(spec.singular)}</a>` : ''}`, spec.icon, [[spec.title]])
     + (spec.tabs ? spec.tabs('list') : '')
@@ -5686,7 +5701,7 @@ function crudForm(spec, id) {
   return {
     html, after: () => {
       const form = $('[data-cf]');
-      const rer = () => { readSimple(fields, form, work); const est = form.estado ? form.estado.value : work.estado; work.estado = est; route(); };
+      const rer = () => { if (form.isConnected) { readSimple(fields, form, work); if (form.estado) work.estado = form.estado.value; } route(); };
       bindFields(fields, work, form, rer);
       $('[data-cancel]').onclick = () => { ADM.work = null; };
       spec.afterForm && spec.afterForm(work, isNew, rer, form);
@@ -5835,6 +5850,7 @@ SPECS.documentos = {
     w.refModulo ? { n: 'info', t: 'info', html: () => 'El archivo se toma automáticamente del módulo <b>Admisión</b> (reglamento del proceso vigente). Al actualizarlo allí, se actualiza aquí sin duplicar archivos.' } : { n: 'archivo', l: 'Archivo', t: 'file', full: true, pubReq: true },
   ],
   beforeSave: w => { w.grupo = w.grupo || slugify(w.nombre); if (w.refModulo) w.archivo = null; },
+  afterForm: (w, isNew, rerender, form) => { form.refModulo.onchange = rerender; },
   validate: w => { const dup = alive('documentos').find(d => d.id !== w.id && normTitle(d.nombre) === normTitle(w.nombre) && d.tipoId === w.tipoId && String(d.vigencia) === String(w.vigencia) && String(d.version) === String(w.version)); if (dup) return { version: 'Ya existe esta misma versión del documento (mismo nombre, tipo, vigencia y versión).' }; if (!w.refModulo && /reglamento de admision/.test(normTitle(w.nombre))) return { refModulo: 'El Reglamento de Admisión ya se administra en el módulo Admisión. Use la opción de referencia para no duplicar el archivo.' }; return {}; },
   afterSave: w => { if (w.estado === 'Publicado') { w.fechaPub = w.fechaPub || new Date().toISOString().slice(0, 10); w.publicadoPor = currentUser().usuario; coll('documentos').forEach(d => { if (d.id !== w.id && d.grupo === w.grupo && d.estado === 'Publicado' && !d.deleted) { d.estado = 'Histórico'; stamp(d); audit('Paso a histórico', 'Documentos de gestión', d.nombre + ' v' + d.version, 'Por publicación de v' + w.version); } }); } },
   inUse: r => r.refModulo ? 'Este registro referencia un documento de otro módulo; no puede eliminarse definitivamente mientras exista la relación.' : '',
@@ -6091,13 +6107,14 @@ function bindRes(w, box, rer) {
   w.resultados = w.resultados || {}; w.historial = w.historial || [];
   const pn = id => (byId('programas', id) || {}).nombre;
   $$('[data-rv]', box).forEach(b => b.onclick = () => { const [p, t] = b.dataset.rv.split('|'); openDoc(w.resultados[p][t]); });
-  $$('[data-rr]', box).forEach(inp => inp.onchange = async () => {
+  $$('[data-rr]', box).forEach(inp => inp.onchange = () => editorFileTask(inp, async () => {
     const f = inp.files[0]; if (!f) return; const [p, t] = inp.dataset.rr.split('|'); const er = checkFile(f, 'pdf'); if (er) return toast(er, 'err');
     const cur = (w.resultados[p] || {})[t];
     if (cur && !await confirmBox(`Ya existe un resultado para ${esc(pn(p))} – turno ${t === 'M' ? 'mañana' : 'tarde'}. ¿Reemplazarlo? El anterior quedará en el historial.`, { ok: 'Reemplazar', danger: false })) { inp.value = ''; return; }
+    const file = await portalUpload(f); if (ADM.work !== w) return;
     if (cur) w.historial.unshift({ fecha: nowISO(), accion: 'Reemplazo', programa: pn(p), turno: t, archivo: cur.original || cur.nombre, por: currentUser().usuario });
-    w.resultados[p] = w.resultados[p] || {}; w.resultados[p][t] = {...await portalUpload(f),fecha:nowISO(),por:currentUser().usuario}; rer();
-  });
+    w.resultados[p] = w.resultados[p] || {}; w.resultados[p][t] = {...file,fecha:nowISO(),por:currentUser().usuario}; rer();
+  }));
   $$('[data-rx]', box).forEach(b => b.onclick = async () => { const [p, t] = b.dataset.rx.split('|'); if (!await confirmBox(`¿Retirar el resultado de ${esc(pn(p))} – turno ${t === 'M' ? 'mañana' : 'tarde'}? El botón dejará de mostrarse en el portal.`, { ok: 'Retirar' })) return; const cur = w.resultados[p][t]; w.historial.unshift({ fecha: nowISO(), accion: 'Retiro', programa: pn(p), turno: t, archivo: cur.original || cur.nombre, por: currentUser().usuario }); delete w.resultados[p][t]; rer(); });
 }
 /* ---------- Matrícula ---------- */
@@ -6140,7 +6157,7 @@ function singletonForm({ title, sub, icon, crumbs, tabs = '', fields, get, onSav
   const html = admHead(title, sub, '', icon, crumbs || [[title]]) + tabs + `<form data-sf novalidate><div class="panel"><div class="pb"><div class="form-grid">${fields.map(f => fieldHTML(f, work)).join('')}</div></div></div>${extra}<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn">${ic('check').replace('<svg', '<svg style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2"')} Guardar cambios</button></div></form>`;
   return {
     html, after: () => {
-      const form = $('[data-sf]'); const rer = () => { readSimple(fields, form, work); route(); };
+      const form = $('[data-sf]'); const rer = () => { if (form.isConnected) readSimple(fields, form, work); route(); };
       bindFields(fields, work, form, rer);
       form.onsubmit = e => { e.preventDefault(); readSimple(fields, form, work); const er = {}; fields.forEach(f => { const v = work[f.n]; if (f.req && (v == null || v === '')) er[f.n] = 'Obligatorio.'; if (v && f.t === 'email' && !reEmail.test(v)) er[f.n] = 'Correo no válido.'; if (v && f.t === 'url' && !/^https?:\/\//.test(v)) er[f.n] = 'Debe iniciar con https://'; }); const v2 = onSave(structuredClone(work), er); if (v2 === false) return; if (!showErrors(form, er)) return; audit('Modificación', title, title); if (saveDB()) { ADM.work = null; toast('Cambios guardados.', 'ok'); route(); } };
     }
@@ -6163,15 +6180,20 @@ CUSTOM.popup = () => singletonForm({
   fields: [{ n: 'activo', l: 'Mostrar ventana emergente en la portada', t: 'checkbox', full: true }, { n: 'titulo', l: 'Título', req: true, full: true }, { n: 'texto', l: 'Texto', t: 'textarea', full: true }, { n: 'boton', l: 'Texto del botón' }, { n: 'enlace', l: 'Enlace', ph: '#/admision' }, { n: 'inicio', l: 'Mostrar desde', t: 'date' }, { n: 'fin', l: 'Mostrar hasta', t: 'date' }, { n: 'imagen', l: 'Imagen', t: 'image', full: true }],
   onSave: (w, er) => { if (w.inicio && w.fin && w.fin < w.inicio) er.fin = 'La fecha final debe ser posterior a la inicial.'; if (Object.keys(er).length) return; DB.config.popup = w; try { sessionStorage.removeItem('popup_seen'); } catch (e) { } },
 });
+function quickAccessSummary(accesses) {
+  const hidden = accesses.filter(a => !resolveLink(a.enlace));
+  return `<p><strong>${accesses.length - hidden.length} de ${accesses.length} accesos se mostrarán en Inicio.</strong> Los accesos con enlace vacío o servicio externo inactivo se ocultan.</p>${hidden.length ? `<ul>${hidden.map(a => `<li>${esc(a.titulo || 'Sin título')}: ${String(a.enlace || '').startsWith('ext:') ? `el servicio «${esc(a.enlace.slice(4))}» no tiene una URL activa. <a href="#/admin/enlaces/${encodeURIComponent(a.enlace.slice(4))}">Configurar enlace</a>` : 'completa el enlace de destino.'}</li>`).join('')}</ul>` : ''}`;
+}
 CUSTOM.portada = () => singletonForm({
   title: 'Portada – bloques, accesos y cifras', icon: 'image', tabs: portadaTabs('b'), crumbs: [['Portada', '#/admin/slides'], ['Bloques']], get: () => DB.config.home,
   fields: [
     { n: 'bloques', l: 'Bloques de la portada (orden y visibilidad)', t: 'custom', render: w => `<div style="display:grid;gap:6px;max-width:520px">${w.bloques.map((b, i) => `<div style="display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--card)"><span style="flex:1">${i + 1}. ${esc(b.label)}</span><label class="check"><input type="checkbox" data-bon="${i}" ${b.on ? 'checked' : ''}> Visible</label><button type="button" class="icon-btn" data-bup="${i}" title="Subir">${ic('up')}</button><button type="button" class="icon-btn" data-bdn="${i}" title="Bajar">${ic('down')}</button></div>`).join('')}</div>`, bind: (w, box, rer) => { $$('[data-bon]', box).forEach(c => c.onchange = () => w.bloques[+c.dataset.bon].on = c.checked); $$('[data-bup]', box).forEach(b => b.onclick = () => { const i = +b.dataset.bup; if (i) { [w.bloques[i - 1], w.bloques[i]] = [w.bloques[i], w.bloques[i - 1]]; rer(); } }); $$('[data-bdn]', box).forEach(b => b.onclick = () => { const i = +b.dataset.bdn; if (i < w.bloques.length - 1) { [w.bloques[i + 1], w.bloques[i]] = [w.bloques[i], w.bloques[i + 1]]; rer(); } }); } },
-    { n: 'accesos', l: 'Accesos rápidos (4 recomendados)', t: 'rows', cols: [{ n: 'titulo', l: 'Título' }, { n: 'texto', l: 'Texto' }, { n: 'icono', l: 'Ícono', t: 'select', opts: ['clipboard', 'book', 'mail', 'monitor', 'briefcase', 'grad', 'database', 'globe'] }, { n: 'enlace', l: 'Enlace (#/ruta, https:// o ext:id)' }] },
+    { n: 'accesos', l: 'Accesos rápidos (4 recomendados)', t: 'rows', cols: [{ n: 'titulo', l: 'Título' }, { n: 'texto', l: 'Texto' }, { n: 'icono', l: 'Ícono', t: 'select', def: 'clipboard', opts: ['clipboard', 'book', 'mail', 'monitor', 'briefcase', 'grad', 'database', 'globe'] }, { n: 'enlace', l: 'Enlace (#/ruta, https:// o ext:id)' }] },
+    { n: 'estadoAccesos', l: 'Visibilidad de los accesos', t: 'custom', render: w => quickAccessSummary(w.accesos), bind: (w, box) => { const form = box.closest('form'); const update = () => { box.innerHTML = quickAccessSummary(w.accesos); }; form.addEventListener('input', update); form.addEventListener('change', update); } },
     { n: 'cifras', l: 'Cifras institucionales (use auto:anios, auto:programas, auto:matriculados o auto:egresados para calcularlas desde los datos)', t: 'rows', cols: [{ n: 'label', l: 'Etiqueta' }, { n: 'valor', l: 'Valor' }, { n: 'corte', l: 'Año de corte' }] },
     { n: 'beneficios', l: '¿Por qué estudiar aquí? (hasta 8)', t: 'rows', cols: [{ n: 't', l: 'Título' }, { n: 'd', l: 'Descripción' }, { n: 'i', l: 'Ícono', t: 'select', opts: ['grad', 'users', 'flask', 'briefcase', 'award', 'building', 'target', 'globe', 'monitor', 'star'] }] },
   ],
-  onSave: (w, er) => { (w.accesos || []).forEach(a => { if (a.enlace && !/^(#\/|https?:\/\/|ext:)/.test(a.enlace)) er.accesos = 'Enlace no válido: “' + a.enlace + '”. No use “#” vacío ni javascript:.'; }); (w.cifras || []).forEach(c => { if (!c.corte) er.cifras = 'Cada cifra debe indicar su año de corte.'; }); if ((w.beneficios || []).length > 8 && JSON.stringify(w.beneficios)!==JSON.stringify(DB.config.home.beneficios)) er.beneficios = 'Máximo 8 beneficios. Reduzca la lista antes de modificarla.'; if (Object.keys(er).length) return; DB.config.home = w; },
+  onSave: (w, er) => { (w.accesos || []).forEach(a => { if (!String(a.titulo || '').trim() || !String(a.enlace || '').trim()) er.accesos = 'Completa el título y el enlace de cada acceso, o quita la fila vacía.'; else if (!/^(#\/|https?:\/\/|ext:)/.test(a.enlace)) er.accesos = 'Enlace no válido: “' + a.enlace + '”. No use “#” vacío ni javascript:.'; }); (w.cifras || []).forEach(c => { if (!c.corte) er.cifras = 'Cada cifra debe indicar su año de corte.'; }); if ((w.beneficios || []).length > 8 && JSON.stringify(w.beneficios)!==JSON.stringify(DB.config.home.beneficios)) er.beneficios = 'Máximo 8 beneficios. Reduzca la lista antes de modificarla.'; if (Object.keys(er).length) return; DB.config.home = w; },
 });
 CUSTOM.config = () => singletonForm({
   title: 'Configuración general', icon: 'gear', sub: 'Datos institucionales, contacto, redes, SEO, correos y parámetros protegidos.',
@@ -6191,9 +6213,10 @@ CUSTOM.config = () => singletonForm({
   ],
   onSave: (w, er) => {
     if (w.waOn && !/^\d{9,13}$/.test(w.waNum || '')) er.waNum = 'Número no válido (9 a 13 dígitos).'; if (Object.keys(er).length) return;
-    const C = DB.config; if (C.correoReclamos !== w.correoReclamos) audit('Cambio de parámetro protegido', 'Configuración', 'Correo del Libro de Reclamaciones', `${C.correoReclamos} → ${w.correoReclamos}`);
+    const C = DB.config; const oldName = C.inst.nombre, oldLogo = C.inst.logo; if (C.correoReclamos !== w.correoReclamos) audit('Cambio de parámetro protegido', 'Configuración', 'Correo del Libro de Reclamaciones', `${C.correoReclamos} → ${w.correoReclamos}`);
     ['nombre', 'nombreCorto', 'logoSigla', 'slogan', 'lema', 'descripcion', 'logo', 'direccion', 'telefono', 'telefonoNota', 'correo', 'horario', 'horarioSab', 'ruc', 'codigoModular', 'fechaCreacion', 'normaCreacion', 'lat', 'lng'].forEach(k => C.inst[k] = w[k]);
-    C.redes = { facebook: w.fb, youtube: w.yt, instagram: w.ig, tiktok: w.tt }; C.seo.titulo = w.seoTitulo; C.seo.descripcion = w.seoDesc; C.correoReclamos = w.correoReclamos; C.correoContacto = w.correoContacto;
+    if (oldLogo !== w.logo && DB.academico.cfg.docs?.logoIzq?.src === oldLogo) { const preview = document.querySelector('[data-img=logo] img'); DB.academico.cfg.docs.logoIzq = w.logo ? { src: w.logo, w: preview?.naturalWidth || 240, h: preview?.naturalHeight || 310 } : null; }
+    C.redes = { ...C.redes, facebook: w.fb, youtube: w.yt, instagram: w.ig, tiktok: w.tt }; C.seo.titulo = w.seoTitulo === C.seo.titulo ? w.seoTitulo.replace(oldName, w.nombre) : w.seoTitulo; C.seo.descripcion = w.seoDesc; C.correoReclamos = w.correoReclamos; C.correoContacto = w.correoContacto;
     C.whatsapp = { numero: w.waNum, mensaje: w.waMsg, activo: w.waOn }; C.limites = { descripcion: +w.limDesc || 1500, pedido: +w.limPed || 1000 }; C.simularFalloCorreo = w.simFail; Object.keys(IMG_CACHE).forEach(k => delete IMG_CACHE[k]);
   },
 });
@@ -6405,7 +6428,7 @@ function inbox({ key, collName, title, sub, icon, states, filterExtra = [], sear
   if (st.f.estado) rows = rows.filter(r => (r.anulado ? 'Anulado' : r.estado) === st.f.estado);
   filterExtra.forEach(fl => { if (st.f[fl.n]) rows = rows.filter(r => String(r[fl.n]) === st.f[fl.n]); });
   if (st.f.desde) rows = rows.filter(r => r.fecha.slice(0, 10) >= st.f.desde); if (st.f.hasta) rows = rows.filter(r => r.fecha.slice(0, 10) <= st.f.hasta);
-  rows.sort((a, b) => b.fecha.localeCompare(a.fecha)); const tot = rows.length; const pg = rows.slice((st.page - 1) * st.size, st.page * st.size);
+  rows.sort((a, b) => b.fecha.localeCompare(a.fecha)); const tot = rows.length; st.page = Math.max(1, Math.min(st.page, Math.ceil(tot / st.size) || 1)); const pg = rows.slice((st.page - 1) * st.size, st.page * st.size);
   const html = admHead(title, sub, extraActs, icon, [[title]]) + tabs + top
     + `<form class="filters" data-lf><div class="field"><label for="lf-q">Buscar</label><input id="lf-q" name="q" value="${esc(st.q)}" placeholder="Nombre, código, asunto..."></div><div class="field"><label for="lf-e">Estado</label><select id="lf-e" name="estado"><option value="">Todos</option>${states.map(s => `<option ${st.f.estado === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>${filterExtra.map(fl => `<div class="field"><label for="lf-${fl.n}">${fl.l}</label><select id="lf-${fl.n}" name="${fl.n}"><option value="">Todos</option>${fl.opts.map(o => `<option ${st.f[fl.n] === o ? 'selected' : ''}>${o}</option>`).join('')}</select></div>`).join('')}<div class="field"><label for="lf-d">Desde</label><input id="lf-d" type="date" name="desde" value="${st.f.desde || ''}"></div><div class="field"><label for="lf-h">Hasta</label><input id="lf-h" type="date" name="hasta" value="${st.f.hasta || ''}"></div><div class="actions"><button class="btn">Filtrar</button><button type="button" class="btn ghost" data-clr>Limpiar</button></div></form>
     <div class="panel"><h2><span>${st.trash ? 'Papelera' : 'Bandeja'} <span class="badge">${tot} registro(s)</span></span>${trash ? `<button class="btn xs ghost" data-trash>${st.trash ? '← Volver a la bandeja' : sic('trash', 13) + ' Papelera (' + coll(collName).filter(r => r.deleted).length + ')'}</button>` : ''}</h2><div class="tbl-wrap" style="border:0"><table class="tbl light"><thead><tr>${cols.map(c => `<th class="${c.cls || ''}">${c.l}</th>`).join('')}<th class="c">Acciones</th></tr></thead><tbody>${pg.map(r => `<tr data-id="${r.id}" class="${rowCls ? rowCls(r) : ''}">${cols.map(c => `<td class="${c.cls || ''}">${c.f(r)}</td>`).join('')}<td><div class="row-acts" style="justify-content:center">${st.trash ? ib('restore', 'restore', 'Restaurar') : ib('open', 'eye', 'Ver detalle') + (trash ? ib('del', 'trash', 'Eliminar', 'del') : '')}</div></td></tr>`).join('') || `<tr><td colspan="${cols.length + 1}"><div class="empty" style="margin:8px 0">No hay registros con los criterios seleccionados.</div></td></tr>`}</tbody></table></div><div class="pb" style="padding-top:0">${pager(tot, st.page, st.size)}</div></div>`;
@@ -6530,7 +6553,7 @@ CUSTOM.auditoria = () => {
   if (st.f.usuario) rows = rows.filter(a => a.usuario === st.f.usuario); if (st.f.entidad) rows = rows.filter(a => a.entidad === st.f.entidad);
   if (st.f.desde) rows = rows.filter(a => a.fecha.slice(0, 10) >= st.f.desde); if (st.f.hasta) rows = rows.filter(a => a.fecha.slice(0, 10) <= st.f.hasta);
   const users = [...new Set(coll('auditoria').map(a => a.usuario))].sort(), ents = [...new Set(coll('auditoria').map(a => a.entidad))].sort();
-  const tot = rows.length, pg = rows.slice((st.page - 1) * st.size, st.page * st.size);
+  const tot = rows.length; st.page = Math.max(1, Math.min(st.page, Math.ceil(tot / st.size) || 1)); const pg = rows.slice((st.page - 1) * st.size, st.page * st.size);
   const sel = (n, l, o) => `<div class="field"><label for="af-${n}">${l}</label><select id="af-${n}" name="${n}"><option value="">Todos</option>${o.map(x => `<option ${st.f[n] === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div>`;
   const html = admHead('Auditoría', 'Registro inalterable de accesos, cambios, publicaciones, eliminaciones y exportaciones.', `<button class="btn sec" data-acsv>${sic('download')} Exportar CSV</button>`, 'history', [['Auditoría']])
     + `<form class="filters" data-af><div class="field"><label for="af-q">Buscar</label><input id="af-q" name="q" value="${esc(st.q)}"></div>${sel('usuario', 'Usuario', users)}${sel('entidad', 'Módulo', ents)}<div class="field"><label for="af-d">Desde</label><input id="af-d" type="date" name="desde" value="${st.f.desde || ''}"></div><div class="field"><label for="af-h">Hasta</label><input id="af-h" type="date" name="hasta" value="${st.f.hasta || ''}"></div><div class="actions"><button class="btn">Filtrar</button><button type="button" class="btn ghost" data-clr>Limpiar</button></div></form>
@@ -6561,7 +6584,7 @@ function themeScope(t) {
 function themeMock(t, big = false) {
   return `<div class="tm-mock${big ? ' big' : ''}" style="${esc(themeScope(t))}" aria-hidden="true">
     <div class="tm-top"></div>
-    <div class="tm-head"><i class="tm-logo"></i><b>INSTITUTO PUBLICO DE ICA</b><span class="tm-nav"><u></u><u></u><u></u>${big ? '<u></u>' : ''}</span></div>
+    <div class="tm-head"><i class="tm-logo"></i><b>${esc(inst().nombre)}</b><span class="tm-nav"><u></u><u></u><u></u>${big ? '<u></u>' : ''}</span></div>
     <div class="tm-hero"><b>Admisión ${new Date().getFullYear() + 1}</b>${big ? '<small>Formación técnica de calidad</small>' : ''}<em>Postula aquí</em></div>
     <div class="tm-cards">${[1, 2, big ? 3 : 0].filter(Boolean).map(i => `<div class="tm-card"><b>${['Noticias', 'Programas', 'Eventos'][i - 1]}</b>${big ? '<p>Texto de ejemplo del portal.</p><a>Ver más</a>' : '<p></p>'}</div>`).join('')}</div>
     ${big ? '<div class="tm-btns"><span class="tm-b1">Botón principal</span><span class="tm-b2">Dorado</span><span class="tm-badge">Etiqueta</span></div>' : ''}
@@ -6716,7 +6739,7 @@ const IXHOST = {
   logout: () => { audit('Cierre de sesión', 'Sesión', (currentUser() || {}).usuario || ''); saveDB(); setSession(null); go('#/admin'); },
   verifyUrl: cod => location.href.split('#')[0] + '#/servicios/consulta-certificados?codigo=' + encodeURIComponent(cod),
   registerDoc: d => { if (coll('certificados').some(c => c.codigo === d.cod)) return; coll('certificados').unshift(stamp({ id: uid(), codigo: d.cod, dni: d.dni, nombres: d.nombres, programaId: d.prog || '', tipo: d.tipo, fecha: String(d.fecha).slice(0, 10), estado: 'Válido', origen: 'Módulos académicos' }, true)); },
-  inst: () => { const i = inst(); const dj = alive('jerarquica').find(j => j.esDirector); const dp = dj && byId('personas', dj.personaId); return { nombre: i.nombre, siglas: i.nombreCorto, direccion: i.direccion, web: (i.correo || '').split('@')[1] || '', director: dp ? fullName(dp) : '' }; },
+  inst: () => { const i = inst(); const dj = alive('jerarquica').find(j => j.esDirector); const dp = dj && byId('personas', dj.personaId); return { nombre: i.nombre, siglas: i.nombreCorto, direccion: i.direccion, web: location.host, director: dp ? fullName(dp) : '' }; },
   programas: () => sortO(alive('programas')).map(p => ({ pid: p.id, nombre: p.nombre, activo: p.estado === 'Publicado' })),
   docentes: () => alive('personas').filter(p => p.tipo === 'Docente').map(p => ({ id: p.id, nom: `${p.nombres} ${p.apellidos}`, dni: p.dni, correo: p.correo, esp: p.especialidad, cond: p.condicion })).sort((a, b) => a.nom.localeCompare(b.nom)),
 };
@@ -6934,7 +6957,7 @@ function raster(src, w, h, { bg = '#ffffff', type = 'image/jpeg', fit = 'cover' 
     im.onerror = () => ok(null); if (/^https?:/.test(src)) im.crossOrigin = 'anonymous'; im.src = src;
   });
 }
-const logoPng = () => raster(PISCO_LOGO, 240, 310, { type: 'image/png', fit: 'contain' });
+const logoPng = () => raster(logoSrc(), 240, 310, { type: 'image/png', fit: 'contain' });
 const hasPdf = () => !!(window.jspdf && window.jspdf.jsPDF);
 const NAVY = [11, 29, 63], BLUE = [10, 127, 194], GOLD = [245, 196, 0], ORANGE = [234, 112, 64], LIGHT = [234, 244, 251];
 function pdfQRp(doc, text, x, y, size) {
@@ -6943,13 +6966,18 @@ function pdfQRp(doc, text, x, y, size) {
   for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (q.isDark(r, k)) doc.rect(x + k * c, y + r * c, c + .02, c + .02, 'F');
 }
 /* Membrete oficial (como en los oficios del instituto) */
+function pdfFitLine(doc, value, width, size) {
+  const text = String(value || ''); doc.setFontSize(size);
+  doc.setFontSize(Math.min(size, size * width / Math.max(doc.getTextWidth(text), 1)));
+  return text;
+}
 async function pdfMembrete(doc, sub) {
   const W = doc.internal.pageSize.getWidth(); const lg = await logoPng();
   doc.setFillColor(...NAVY); doc.triangle(0, 0, 46, 0, 0, 16, 'F'); doc.setFillColor(...BLUE); doc.triangle(0, 16, 46, 0, 30, 0, 'F');
   if (lg) try { doc.addImage(lg, 'PNG', W - 30, 6, 17, 22); } catch (e) { }
   doc.setTextColor(25); doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.text('MINISTERIO DE EDUCACIÓN', W / 2, 11, { align: 'center' });
   doc.setFontSize(9.5); doc.text('DIRECCIÓN REGIONAL DE EDUCACIÓN ICA', W / 2, 15.5, { align: 'center' });
-  doc.text('INSTITUTO PUBLICO DE ICA', W / 2, 20, { align: 'center' });
+  doc.text(pdfFitLine(doc, inst().nombre.toUpperCase(), W - 68, 9.5), W / 2, 20, { align: 'center' });
   doc.setFontSize(8.5); doc.text(inst().normaCreacion || 'Resolución de ejemplo — sin validez oficial', W / 2, 24.3, { align: 'center' });
   doc.setDrawColor(...GOLD); doc.setLineWidth(.6); doc.setLineDashPattern([1, .8], 0); doc.line(14, 27.5, W - 34, 27.5); doc.setLineDashPattern([], 0); doc.setLineWidth(.2);
   doc.setFont('helvetica', 'bolditalic'); doc.setFontSize(7.8); doc.setTextColor(60); doc.text(`"${inst().denominacionAnio || 'Año de la Esperanza y el Fortalecimiento de la Democracia'}"`.toUpperCase(), W / 2, 31.5, { align: 'center' });
@@ -7025,7 +7053,7 @@ R('servicios/mesa-de-partes', (path, q0) => {
    ${svTabs([['n', 'send', 'Nuevo trámite'], ['c', 'search', 'Consultar expediente'], ['i', 'book', 'Información']], cur)}
    <div data-pane="n" ${cur === 'n' ? '' : 'hidden'}>${mpvForm()}</div><div data-pane="c" ${cur === 'c' ? '' : 'hidden'}>${mpvConsulta()}</div><div data-pane="i" ${cur === 'i' ? '' : 'hidden'}>${mpvInfo()}</div>`;
   const side = `<section class="side-box"><h2>Contacto</h2><div class="pad" style="font-size:13.5px">✉️ <a href="mailto:${esc(c.correo)}">${esc(c.correo)}</a><br>📞 ${esc(c.telefono)} (Secretaría de Dirección)<br>📍 ${esc(inst().direccion)}</div></section><section class="side-box"><h2>Numeración</h2><div class="pad" style="font-size:13px">Expediente: <b class="mono">${esc(c.prefijo)}-${yearNow()}-000001</b><br>Documento: <b class="mono">DOC-${yearNow()}-000001</b><br><span style="color:var(--muted)">Únicos, correlativos y reiniciados cada año.</span></div></section>`;
-  const html = shell(path, { title: 'Mesa de Partes Virtual', desc: 'Mesa de Partes Virtual del INSTITUTO PUBLICO DE ICA: registro de documentos, cargo de recepción y seguimiento de expedientes.', crumbs: [['Servicios', '#/servicios'], ['Mesa de Partes Virtual']], banner: { kicker: 'Servicios en línea', title: 'Mesa de Partes Virtual', text: 'Tus trámites en línea, con cargo de recepción inmediato' }, side, body });
+  const html = shell(path, { title: 'Mesa de Partes Virtual', desc: `Mesa de Partes Virtual del ${inst().nombre}: registro de documentos, cargo de recepción y seguimiento de expedientes.`, crumbs: [['Servicios', '#/servicios'], ['Mesa de Partes Virtual']], banner: { kicker: 'Servicios en línea', title: 'Mesa de Partes Virtual', text: 'Tus trámites en línea, con cargo de recepción inmediato' }, side, body });
   return { html, after: () => bindMpv(q0) };
 });
 function bindMpv(q0) {
@@ -7119,7 +7147,7 @@ cargoExp = async function (id) {
   const verificationSize = Math.min(10.5, 10.5 * verificationWidth / Math.max(doc.getTextWidth(verificationCode), 1));
   doc.setFontSize(verificationSize); doc.text(verificationCode, M + 52, y + 25.5);
   const sx = W - M - 66, sy = y + 2.5; doc.setDrawColor(...NAVY); doc.setLineWidth(.9); doc.rect(sx, sy, 62, 25); doc.setLineWidth(.25); doc.rect(sx + 1.2, sy + 1.2, 59.6, 22.6);
-  doc.setTextColor(...NAVY); doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.text('INSTITUTO PUBLICO DE ICA', sx + 31, sy + 5, { align: 'center' });
+  doc.setTextColor(...NAVY); doc.setFont('helvetica', 'bold'); doc.text(pdfFitLine(doc, inst().nombreCorto.toUpperCase(), 58, 6.5), sx + 31, sy + 5, { align: 'center' });
   doc.setFontSize(10.5); doc.text('MESA DE PARTES VIRTUAL', sx + 31, sy + 10, { align: 'center' });
   doc.setFontSize(7); doc.text(`EXP. N.°: ${String(x.numero).slice(-6)}     N.° FOLIOS: ${pad(x.folios || 0)}`, sx + 31, sy + 14.5, { align: 'center' });
   doc.text(`FECHA ${fshort(recF)}   HORA ${new Date(recF).toTimeString().slice(0, 5)}`, sx + 31, sy + 18.5, { align: 'center' });
@@ -7140,7 +7168,7 @@ cargoExp = async function (id) {
   doc.setDrawColor(...BLUE); doc.setLineWidth(.4); doc.roundedRect(M, y, W - 2 * M, 40, 2, 2); doc.setLineWidth(.2);
   pdfQRp(doc, expSeguimientoUrl(x), M + 4, y + 4, 32);
   const tx = M + 41, tw = W - M - 4 - tx; let ty = y + 7;
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(...NAVY); doc.text(doc.splitTextToSize('El presente documento fue RECIBIDO por la Mesa de Partes Virtual del INSTITUTO PUBLICO DE ICA.', tw), tx, ty); ty += 9;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(...NAVY); doc.text(doc.splitTextToSize(`El presente documento fue RECIBIDO por la Mesa de Partes Virtual del ${inst().nombre}.`, tw), tx, ty); ty += 9;
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(50);
   [`La recepción no implica la conformidad con el contenido del documento. El trámite será atendido por el área de destino dentro del plazo de ${c.plazos[x.tipoTramite] || EXP_PLAZOS[x.tipoTramite] || 10} días hábiles, contados desde la fecha de recepción.`,
    `Consulte el estado escaneando el código QR o en Mesa de Partes Virtual › Consultar expediente, con el N.° ${x.numero} y su documento de identidad o el código ${x.cargoCod}.`,
@@ -7287,7 +7315,7 @@ function lrPage(path, q0) {
   const side = `<section class="side-box"><h2>Responsable de la atención</h2><div class="pad" style="font-size:13.5px"><b>${esc(c.responsable)}</b><br>${esc(c.cargo)}<br>✉️ <a href="mailto:${esc(c.correo)}">${esc(c.correo)}</a></div></section>
    <section class="side-box"><h2>Plazos de respuesta</h2><div class="pad" style="font-size:13.5px"><ul style="padding-left:18px;margin:0"><li>Reclamos: hasta <b>${c.plazoReclamo} días hábiles</b>.</li><li>Quejas: hasta <b>${c.plazoQueja} días hábiles</b>.</li></ul></div></section>
    <section class="side-box"><h2>¿Necesitas ayuda?</h2><div class="pad" style="font-size:13.5px">📞 ${esc(i.telefono)}<br>✉️ ${esc(c.correo)}<br>🕗 ${esc(i.horario)}</div></section>`;
-  const html = shell(path, { title: 'Libro de Reclamaciones', desc: 'Libro de Reclamaciones Virtual del INSTITUTO PUBLICO DE ICA: registra tu reclamo o queja y consulta su estado.', crumbs: [['Servicios', '#/servicios'], ['Libro de Reclamaciones']], banner: { kicker: 'Servicios en línea', title: 'Libro de Reclamaciones', text: 'Porque un mejor servicio también se construye escuchándote' }, side, body });
+  const html = shell(path, { title: 'Libro de Reclamaciones', desc: `Libro de Reclamaciones Virtual del ${inst().nombre}: registra tu reclamo o queja y consulta su estado.`, crumbs: [['Servicios', '#/servicios'], ['Libro de Reclamaciones']], banner: { kicker: 'Servicios en línea', title: 'Libro de Reclamaciones', text: 'Porque un mejor servicio también se construye escuchándote' }, side, body });
   return { html, after: () => bindLr2(q0) };
 }
 R('servicios/libro-de-reclamaciones', (path, q0) => lrPage(path, q0));
@@ -7480,7 +7508,7 @@ function bolsaPanel() {
   const ofs = D.ofertas.slice().sort((a, b) => String(b.fecha || '').localeCompare(String(a.fecha || ''))).slice(0, 5);
   const emps = D.empresas.slice().sort((a, b) => (b.id || 0) - (a.id || 0)).slice(0, 4);
   const posts = D.postulaciones.slice().sort((a, b) => String(b.fecha).localeCompare(String(a.fecha))).slice(0, 5);
-  const html = bHead('Gestión de la Bolsa Laboral del INSTITUTO PUBLICO DE ICA') + bTabs('p')
+  const html = bHead(`Gestión de la Bolsa Laboral del ${inst().nombre}`) + bTabs('p')
     + `<div class="pz-welcome"><div><h2>Bienvenido al panel de la Bolsa Laboral</h2><p>Conecta a estudiantes y egresados con empresas validadas por la ${esc(window.pzBolsaCfg().responsable)}.</p></div><a class="btn gold" href="#/admin/ix-bolsa/gestion">${sic('plus')} Nueva convocatoria</a></div>
     <div class="pz-kpis">${K('users', 'var(--sky);color:var(--link)', est, 'Estudiantes', can('ix-alumnos') ? '#/admin/ix-alumnos' : '#/admin/ix-bolsa/padron', 'Regulares en el maestro')}${K('grad', 'var(--sky);color:var(--link)', egr, 'Egresados', '#/admin/ix-bolsa/egresados', 'Egresados y titulados')}${K('building', 'var(--sky);color:var(--link)', empA, 'Empresas', '#/admin/ix-bolsa/empresas', 'Aprobadas')}${K('briefcase', 'var(--sky);color:var(--link)', conv, 'Convocatorias', '#/admin/ix-bolsa/gestion', 'Vigentes')}
       ${K('file', 'var(--sky);color:var(--link)', post, 'Postulaciones', '#/admin/ix-bolsa/gestion')}${K('clock', 'var(--sky);color:var(--link)', rev, 'En revisión', '#/admin/ix-bolsa/gestion')}${K('check', 'var(--sky);color:var(--link)', sel, 'Seleccionados', '#/admin/ix-bolsa/gestion')}${K('alert', 'var(--sky);color:var(--link)', empP, 'Empresas pendientes', '#/admin/ix-bolsa/empresas', 'Por validar')}</div>
@@ -7506,7 +7534,7 @@ function bolsaEmpresas() {
     if (!ok) { motivo = await promptBox(`Motivo ${empEstado(e) === 'Aprobada' ? 'de la suspensión' : 'del rechazo'} de ${e.nom} (se enviará a la empresa):`, { title: 'Rechazar empresa', ok: 'Confirmar', textarea: true }); if (motivo == null) return; if (motivo.trim().length < 5) return toast('Indique el motivo.', 'err'); }
     e.validada = ok; e.estadoVal = ok ? 'Aprobada' : 'Rechazada'; e.motivoRech = ok ? '' : motivo.trim(); e.valPor = me.usuario; e.fechaVal = new Date().toISOString().slice(0, 10);
     if (u && u.ixId) IX.notifyTo('u:' + u.ixId, ok ? 'Tu empresa fue aprobada: ya puedes publicar convocatorias' : 'Tu solicitud de empresa no fue aprobada: ' + e.motivoRech, 'bolsa');
-    mailOut(e.correo, ok ? 'Cuenta de empresa aprobada - Bolsa laboral INSTITUTO PUBLICO DE ICA' : 'Cuenta de empresa no aprobada - Bolsa laboral INSTITUTO PUBLICO DE ICA', ok ? `La empresa ${e.nom} fue validada por la ${c.responsable}. Ingrese con su RUC y contraseña.` : `Motivo: ${e.motivoRech}`);
+    mailOut(e.correo, ok ? `Cuenta de empresa aprobada - Bolsa laboral ${inst().nombre}` : `Cuenta de empresa no aprobada - Bolsa laboral ${inst().nombre}`, ok ? `La empresa ${e.nom} fue validada por la ${c.responsable}. Ingrese con su RUC y contraseña.` : `Motivo: ${e.motivoRech}`);
     IX.logAct(ok ? 'Aprobar empresa' : 'Rechazar empresa', 'Bolsa laboral', `${e.nom} (RUC ${e.ruc})${ok ? '' : ' · ' + e.motivoRech}`); if(!IX.persist())return false; toast(ok ? `${e.nom} aprobada. El correo está pendiente de configuración.` : `${e.nom} rechazada. El correo está pendiente de configuración.`, 'ok'); route();
   };
   return { html, after: () => {
@@ -7606,8 +7634,8 @@ function bolsaEgresados(q) {
 R('servicios/bolsa-laboral', (path, q) => {
   const D = IX && IX.db ? XD() : null; const hoy = new Date().toISOString().slice(0, 10);
   const nOf = D ? D.ofertas.filter(o => o.estado === 'Publicada' && o.limite >= hoy).length : 0, nEmp = D ? D.empresas.filter(e => e.validada).length : 0;
-  const body = `<div class="pz-bl"><div class="pz-bl-l"><span class="pz-bl-ic">${ic('briefcase')}</span><h1>Bolsa <span>Laboral</span></h1><b>INSTITUTO PUBLICO DE ICA</b><p>Plataforma institucional para conectar estudiantes y egresados con empresas y oportunidades laborales.</p><div class="pz-bl-3"><span>${ic('grad')}Estudiantes</span><span>${ic('award')}Egresados</span><span>${ic('building')}Empresas</span></div><div class="pz-bl-n"><span><b>${nOf}</b> convocatorias vigentes</span><span><b>${nEmp}</b> empresas aliadas</span></div></div>
-    <form class="pz-bl-r" data-blog novalidate><span class="pz-bl-ic sm">${ic('user')}</span><h2>Iniciar sesión</h2><small>Bolsa Laboral · INSTITUTO PUBLICO DE ICA</small>
+  const body = `<div class="pz-bl"><div class="pz-bl-l"><span class="pz-bl-ic">${ic('briefcase')}</span><h1>Bolsa <span>Laboral</span></h1><b>${esc(inst().nombre)}</b><p>Plataforma institucional para conectar estudiantes y egresados con empresas y oportunidades laborales.</p><div class="pz-bl-3"><span>${ic('grad')}Estudiantes</span><span>${ic('award')}Egresados</span><span>${ic('building')}Empresas</span></div><div class="pz-bl-n"><span><b>${nOf}</b> convocatorias vigentes</span><span><b>${nEmp}</b> empresas aliadas</span></div></div>
+    <form class="pz-bl-r" data-blog novalidate><span class="pz-bl-ic sm">${ic('user')}</span><h2>Iniciar sesión</h2><small>Bolsa Laboral · ${esc(inst().nombreCorto)}</small>
       <div class="field"><label for="bl-t">Tipo de usuario</label><select id="bl-t" name="tipo"><option value="">Seleccione su rol</option><option value="estudiante">Estudiante</option><option value="egresado">Egresado</option><option value="empresa">Empresa</option></select></div>
       <div class="field"><label for="bl-u">Usuario (DNI o RUC)</label><input id="bl-u" name="u" autocomplete="username" placeholder="DNI o RUC"></div>
       <div class="field"><label for="bl-p">Contraseña</label><input id="bl-p" name="p" type="password" autocomplete="current-password"></div>
@@ -7615,7 +7643,7 @@ R('servicios/bolsa-laboral', (path, q) => {
       <div id="bl-e" role="alert" class="pz-err"></div><button class="btn" style="width:100%">${S16('key')} Iniciar sesión</button>
       <div class="pz-bl-emp"><b>${S16('building')} ¿Representas a una empresa?</b><small>Registra tu empresa y publica ofertas laborales. El registro es libre y gratuito.</small><button type="button" class="btn pz-orange" data-reg style="width:100%">${S16('plus')} Registrar empresa</button></div></form></div>
     <h2 class="pz-h2" id="bl-ofertas">Ofertas y registro de empresas</h2>${ixWrap(IX.view('pub:bolsa'))}`;
-  const html = shell(path, { title: 'Bolsa laboral', desc: 'Bolsa Laboral del INSTITUTO PUBLICO DE ICA: convocatorias para estudiantes y egresados y registro libre de empresas.', crumbs: [['Servicios', '#/servicios/complementarios'], ['Bolsa laboral']], banner: { kicker: 'Servicios', title: 'Bolsa Laboral', text: 'Conectamos talento con empresas' }, side: servSide('bolsa-laboral') + `<section class="side-box"><h2>Validación de empresas</h2><div class="pad" style="font-size:13px">Responsable: <b>${esc(window.pzBolsaCfg().responsable)}</b><br><a href="mailto:${esc(window.pzBolsaCfg().correo)}">${esc(window.pzBolsaCfg().correo)}</a></div></section>`, body });
+  const html = shell(path, { title: 'Bolsa laboral', desc: `Bolsa Laboral del ${inst().nombre}: convocatorias para estudiantes y egresados y registro libre de empresas.`, crumbs: [['Servicios', '#/servicios/complementarios'], ['Bolsa laboral']], banner: { kicker: 'Servicios', title: 'Bolsa Laboral', text: 'Conectamos talento con empresas' }, side: servSide('bolsa-laboral') + `<section class="side-box"><h2>Validación de empresas</h2><div class="pad" style="font-size:13px">Responsable: <b>${esc(window.pzBolsaCfg().responsable)}</b><br><a href="mailto:${esc(window.pzBolsaCfg().correo)}">${esc(window.pzBolsaCfg().correo)}</a></div></section>`, body });
   return { html, after: () => {
     const f = $('[data-blog]'); try { const r = localStorage.getItem('pz_bl_user'); if (r) { const [t, u] = JSON.parse(r); f.tipo.value = t; f.u.value = u; f.rec.checked = true; } } catch (e) { }
     $('[data-olv]').onclick = e => { e.preventDefault(); modal({ title: 'Recuperar contraseña', body: `<p>Por seguridad, la contraseña se restablece en la institución.</p><ul><li><b>Estudiantes y egresados:</b> Secretaría Académica (${esc(inst().correo)}).</li><li><b>Empresas:</b> ${esc(window.pzBolsaCfg().responsable)} (${esc(window.pzBolsaCfg().correo)}).</li></ul>` }); };
@@ -7728,7 +7756,7 @@ function cvSeccion(p, k) {
   else if (k === 'competencias') body = `<form class="panel" data-cvf><h2>Competencias y enfoques</h2><div class="pb"><div class="form-grid">${tagsBox('competencias', 'VI. Competencias para la empleabilidad', CV_COMP, c.competencias, 'Se recomienda seleccionar al menos tres.')}${tagsBox('enfoques', 'VII. Enfoques transversales', CV_ENF, c.enfoques)}</div>${canE ? '<div style="text-align:right;margin-top:10px"><button class="btn">Guardar</button></div>' : ''}</div></form>`;
   else if (k === 'documentos') body = `<div class="pz-dash"><div class="panel"><h2>Documentos</h2><div class="pb" style="display:grid;gap:12px"><div><b>Hoja de vida firmada (PDF)</b><p class="note">Si adjunta su CV firmado, este se publicará en lugar del CV generado por el sistema.</p>${c.cvPdf ? `<div class="pz-files"><li>${S16('file')} <span>${esc(c.cvPdf.original)}</span> <small>${fsize(c.cvPdf.size)}</small><button class="btn xs sec" data-dlx="cv">Descargar</button>${canE ? '<button class="btn xs danger" data-rmcv>Quitar</button>' : ''}</li></div>` : ''}${canE ? `<input type="file" accept=".pdf" data-upcv>` : ''}</div>
       <div><b>Documentos sustentatorios</b> <small class="note">(títulos, grados, constancias · PDF/JPG/PNG · máx. 10 MB)</small><ul class="pz-files">${c.docs.map((d, i) => `<li>${S16('file')} <span>${esc(d.titulo || d.original)}</span> <small>${fsize(d.size)}</small><button class="btn xs sec" data-dlx="${i}">Descargar</button>${canE ? `<button class="btn xs danger" data-rmd="${i}">Quitar</button>` : ''}</li>`).join('') || '<li class="note">Sin documentos.</li>'}</ul>${canE ? `<div style="display:flex;gap:8px;flex-wrap:wrap"><input class="inp" id="dc-t" placeholder="Descripción (ej.: Título profesional)" style="flex:1;min-width:180px"><input type="file" accept=".pdf,.jpg,.jpeg,.png" id="dc-f"><button class="btn sm" data-updoc>Adjuntar</button></div>` : ''}</div></div></div>
-      <div class="panel"><h2><span>${sic('shield')} Autorización Ley N.º 29733</span></h2><div class="pb"><p style="font-size:13.5px">Autorizo al INSTITUTO PUBLICO DE ICA a publicar en su Portal Web Institucional, en la sección Plana Docente, mis <b>apellidos y nombres, fotografía, correo institucional, unidades didácticas a mi cargo y hoja de vida</b>, conforme a la Ley N.º 29733, Ley de Protección de Datos Personales, y su reglamento. Puedo revocar esta autorización en cualquier momento.</p>
+      <div class="panel"><h2><span>${sic('shield')} Autorización Ley N.º 29733</span></h2><div class="pb"><p style="font-size:13.5px">Autorizo a ${esc(inst().nombre)} a publicar en su Portal Web Institucional, en la sección Plana Docente, mis <b>apellidos y nombres, fotografía, correo institucional, unidades didácticas a mi cargo y hoja de vida</b>, conforme a la Ley N.º 29733, Ley de Protección de Datos Personales, y su reglamento. Puedo revocar esta autorización en cualquier momento.</p>
         ${c.autoriza.ok ? `<div class="notice ok">Autorizado el ${fdate(c.autoriza.fecha, true)} por ${esc(c.autoriza.por)}.</div>${canE ? '<button class="btn danger sm" data-rev>Revocar autorización</button>' : ''}` : canE ? `<label class="check"><input type="checkbox" id="au-ok"> Acepto y autorizo la publicación de mis datos.</label><p style="margin-top:10px"><button class="btn ok" data-aut>${sic('check')} Registrar autorización</button></p>` : '<div class="notice warn">Pendiente.</div>'}
         <p class="note" style="margin-top:10px">El DNI, la fecha de nacimiento, la dirección y el teléfono solo aparecen en el CV descargable si el docente los registra; el directorio público muestra únicamente el correo institucional.</p></div></div></div>`;
   else {
@@ -7824,7 +7852,7 @@ async function cvPdf(p) {
     const sx = RX + 30, sw = RW - 30; doc.setDrawColor(60); doc.line(sx, ry + 20, sx + sw, ry + 20); font('bold', 6.6, NAVY); doc.text(doc.splitTextToSize(fullName(p).replace(/^\S+\.\s/, '').toUpperCase(), sw), sx + sw / 2, ry + 23.5, { align: 'center' }); if (p.dni) { font('normal', 6.6, NAVY); doc.text('DNI: ' + p.dni, sx + sw / 2, ry + 30.5, { align: 'center' }); } }
   // columna izquierda
   doc.setPage(1); let y = 62;
-  font('normal', 7.8, 35); const per = doc.splitTextToSize(c.perfil || 'Docente del INSTITUTO PUBLICO DE ICA comprometido con la formación integral de los estudiantes y la innovación educativa.', LW - 22); const ph = Math.max(22, per.length * 3.6 + 15);
+  font('normal', 7.8, 35); const per = doc.splitTextToSize(c.perfil || `Docente del ${inst().nombre} comprometido con la formación integral de los estudiantes y la innovación educativa.`, LW - 22); const ph = Math.max(22, per.length * 3.6 + 15);
   doc.setFillColor(232, 243, 252); doc.roundedRect(LX, y, LW, ph, 2, 2, 'F'); doc.setFillColor(...NAVY); doc.circle(LX + 8, y + 9, 5, 'F'); font('bold', 8, 255); doc.text('P', LX + 8, y + 10.2, { align: 'center' });
   font('bold', 10, NAVY); doc.text('PERFIL PROFESIONAL', LX + 17, y + 7); doc.setDrawColor(...BLUE); doc.setLineWidth(.4); doc.line(LX + 17, y + 9, LX + LW - 4, y + 9); doc.setLineWidth(.2); font('normal', 7.8, 35); doc.text(per, LX + 17, y + 14.5); y += ph + GAP + 2;
   const est = r => [r.anio, [r.nivel, r.especialidad].filter(Boolean).join(' – '), r.institucion, r.lugar]; const ew = { 0: { cellWidth: 20 }, 3: { cellWidth: 16 } }; const eh = ['Año', 'Nivel / Especialidad', 'Institución', 'Lugar'];
@@ -7842,7 +7870,7 @@ async function cvPdf(p) {
     if (c.expDocS.length) { y = room(y, 18); y = sub(LX, y - 2, 'EDUCACIÓN SUPERIOR – SEMIPRESENCIAL / DISTANCIA'); y = tbl(LX, LW, y, xh, c.expDocS.map(ex), xw); } }
   // pie en todas las páginas
   const n = doc.internal.getNumberOfPages();
-  for (let k = 1; k <= n; k++) { doc.setPage(k); doc.setFillColor(...NAVY); doc.rect(6, H - 15, W - 12, 11, 'F'); font('bold', 7.4, 255); doc.text('SISTEMA DE GESTIÓN DE CV PARA DOCENTES – INSTITUTO PUBLICO DE ICA', 12, H - 10.2); font('normal', 6.6, 255); doc.text(`Documento generado desde el sistema.${c.autoriza.ok ? ' Publicación autorizada (Ley N.° 29733).' : ''}`, 12, H - 6.6); doc.text(`Fecha de generación: ${fshort(nowISO())}`, W - 12, H - 10.2, { align: 'right' }); doc.text(`Página ${k} de ${n}`, W - 12, H - 6.6, { align: 'right' }); }
+  for (let k = 1; k <= n; k++) { doc.setPage(k); doc.setFillColor(...NAVY); doc.rect(6, H - 15, W - 12, 11, 'F'); font('bold', 7.4, 255); doc.text(`SISTEMA DE GESTIÓN DE CV PARA DOCENTES – ${inst().nombre}`, 12, H - 10.2); font('normal', 6.6, 255); doc.text(`Documento generado desde el sistema.${c.autoriza.ok ? ' Publicación autorizada (Ley N.° 29733).' : ''}`, 12, H - 6.6); doc.text(`Fecha de generación: ${fshort(nowISO())}`, W - 12, H - 10.2, { align: 'right' }); doc.text(`Página ${k} de ${n}`, W - 12, H - 6.6, { align: 'right' }); }
   return doc.output('blob');
 }
 
@@ -7949,7 +7977,7 @@ function svNav(active) {
 /* cabecera del módulo */
 function svHead(k, chips) {
   const m = SV_MODS[k];
-  return `<header class="pz-mh t-${m.tone}"><span class="pz-mh-ic">${sic(m.icon, 30)}</span><div class="pz-mh-tx"><span class="pz-mh-k">Servicios en línea · INSTITUTO PUBLICO DE ICA</span><h1>${esc(m.title)}</h1><p>${esc(m.text)}</p>${chips && chips.length ? `<ul class="pz-mh-ch">${chips.map(([i, t]) => `<li>${sic(i, 15)}<span>${t}</span></li>`).join('')}</ul>` : ''}</div></header>`;
+  return `<header class="pz-mh t-${m.tone}"><span class="pz-mh-ic">${sic(m.icon, 30)}</span><div class="pz-mh-tx"><span class="pz-mh-k">Servicios en línea · ${esc(inst().nombreCorto)}</span><h1>${esc(m.title)}</h1><p>${esc(m.text)}</p>${chips && chips.length ? `<ul class="pz-mh-ch">${chips.map(([i, t]) => `<li>${sic(i, 15)}<span>${t}</span></li>`).join('')}</ul>` : ''}</div></header>`;
 }
 /* pasos del servicio */
 const svSteps = steps => `<ol class="pz-mst">${steps.map(([t, d], i) => `<li><span>${i + 1}</span><div><b>${t}</b><small>${d}</small></div></li>`).join('')}</ol>`;
@@ -7975,7 +8003,7 @@ R('servicios', path => {
   const body = `${svNav('')}<div class="pz-svh"><h1>Servicios en línea</h1><p>Realiza tus trámites, presenta reclamos, verifica documentos y encuentra oportunidades laborales desde cualquier lugar, las 24 horas.</p></div>
    <div class="pz-svg">${cards.map(([k, info, acts]) => { const m = SV_MODS[k]; return `<article class="pz-svc t-${m.tone}"><span class="pz-mh-ic">${sic(m.icon, 28)}</span><h2><a href="#/servicios/${m.slug}">${esc(m.title)}</a></h2><p>${esc(m.text)}</p><ul>${info.map(([i, t]) => `<li>${sic(i, 15)}<span>${t}</span></li>`).join('')}</ul><div class="pz-svc-a">${acts.map(([t, h], i) => `<a class="btn ${i ? 'ghost' : ''}" href="${h}">${t}</a>`).join('')}</div></article>`; }).join('')}</div>
    <section class="pz-svx"><div>${sic('layers', 22)}<div><b>Servicios complementarios</b><span>Tópico de salud, bienestar, biblioteca y seguimiento de egresados: ubicación, horario y responsable.</span></div></div><a class="btn ghost" href="#/servicios/complementarios">Ver servicios</a></section>`;
-  return shell(path, { title: 'Servicios en línea', desc: 'Servicios en línea del INSTITUTO PUBLICO DE ICA: Mesa de Partes Virtual, Libro de Reclamaciones, consulta de certificados y Bolsa Laboral.', crumbs: [['Servicios']], banner: { kicker: 'Servicios', title: 'Servicios en línea', text: 'Tus trámites, sin colas y desde cualquier lugar' }, body });
+  return shell(path, { title: 'Servicios en línea', desc: `Servicios en línea del ${inst().nombre}: Mesa de Partes Virtual, Libro de Reclamaciones, consulta de certificados y Bolsa Laboral.`, crumbs: [['Servicios']], banner: { kicker: 'Servicios', title: 'Servicios en línea', text: 'Tus trámites, sin colas y desde cualquier lugar' }, body });
 });
 
 /* ---------- Consulta y verificación de certificados ---------- */
@@ -8024,7 +8052,7 @@ R('servicios/consulta-certificados', (path, q) => {
     <aside class="pz-cq-i"><h3>¿Qué puedo verificar?</h3><ul><li>${sic('award', 16)} Títulos de Profesional Técnico</li><li>${sic('file', 16)} Certificados de estudios y modulares</li><li>${sic('clipboard', 16)} Constancias emitidas por el instituto</li></ul><h3>¿Tienes el documento impreso?</h3><p>Escanea su código QR con la cámara del celular: se abrirá esta página con el resultado.</p><p class="pz-cq-n">Por seguridad, el DNI del titular se muestra parcialmente oculto (Ley N.º 29733).</p></aside></div>
    <div id="cq-r" aria-live="polite"></div>`;
   const side = `<section class="side-box"><h2>Emisión de documentos</h2><div class="pad" style="font-size:13.5px">Para solicitar un certificado o una constancia, presenta tu solicitud por la <a href="#/servicios/mesa-de-partes">Mesa de Partes Virtual</a>.<br><br>Costos según el <a href="#/transparencia/tupa">TUPA vigente</a>.</div></section><section class="side-box"><h2>Secretaría Académica</h2><div class="pad" style="font-size:13.5px">📞 ${esc(i.telefono)}<br>✉️ <a href="mailto:${esc(i.correo)}">${esc(i.correo)}</a><br>🕗 ${esc(i.horario)}</div></section>`;
-  const html = shell(path, { title: 'Consulta de certificados', desc: 'Verificación en línea de títulos, certificados y constancias del INSTITUTO PUBLICO DE ICA.', crumbs: [['Servicios', '#/servicios'], ['Consulta de certificados']], banner: { kicker: 'Servicios en línea', title: 'Consulta de certificados', text: 'Verificación de autenticidad en línea' }, side, body });
+  const html = shell(path, { title: 'Consulta de certificados', desc: `Verificación en línea de títulos, certificados y constancias del ${inst().nombre}.`, crumbs: [['Servicios', '#/servicios'], ['Consulta de certificados']], banner: { kicker: 'Servicios en línea', title: 'Consulta de certificados', text: 'Verificación de autenticidad en línea' }, side, body });
   const card = d => `<article class="pz-cert ${d.ok ? 'ok' : 'bad'}" role="status"><div class="pz-cert-s">${sic(d.ok ? 'check' : 'x', 30)}<b>${d.ok ? 'DOCUMENTO VÁLIDO' : 'DOCUMENTO ANULADO'}</b><small>${d.ok ? 'Emitido por el ' + esc(i.nombreCorto) : 'Este documento no tiene validez'}</small></div>
      <dl><dt>Tipo de documento</dt><dd>${esc(d.tipo)}</dd>${d.det ? `<dt>${/T[ií]tulo/.test(d.tipo) ? 'Resolución' : 'Detalle'}</dt><dd>${esc(d.det)}</dd>` : ''}<dt>Código</dt><dd class="mono">${esc(d.cod)}</dd>${d.titular ? `<dt>Titular</dt><dd><b>${esc(d.titular)}</b></dd>` : ''}${d.dni ? `<dt>DNI</dt><dd class="mono">${esc(maskDni(d.dni))}</dd>` : ''}${d.prog ? `<dt>Programa de estudios</dt><dd>${esc(d.prog)}</dd>` : ''}<dt>Fecha de emisión</dt><dd>${esc(d.fecha)}</dd>${d.motivo ? `<dt>Motivo de anulación</dt><dd>${esc(d.motivo)}</dd>` : ''}${d.origen ? `<dt>Registro</dt><dd>${esc(d.origen)}</dd>` : ''}<dt>Verificado el</dt><dd>${fdate(new Date().toISOString(), true)}</dd></dl></article>`;
   const DOCT = { cert: 'Constancia de certificación modular', titulo: 'Reporte de validación de título', cargo: 'Cargo de recepción de documento', reclamo: 'Hoja de reclamación', horario: 'Horario académico' };
@@ -8102,10 +8130,10 @@ R('servicios/bolsa-laboral', (path, q) => {
    </div>
    <div data-pane="i" ${tab0 === 'i' ? '' : 'hidden'}>
     ${svSteps([['Busca la oferta', 'Filtra por programa de estudios o modalidad.'], ['Presiona «Postular»', 'El sistema te lleva al inicio de sesión de la intranet.'], ['Inicia sesión', 'Con tu DNI y contraseña de estudiante o egresado.'], ['Confirma', 'Tu postulación se envía con tu perfil y tu CV.']])}
-    <section class="card cb pz-bl-faq"><h2>Preguntas frecuentes</h2><h3>¿Quién puede postular?</h3><p>Estudiantes y egresados del INSTITUTO PUBLICO DE ICA con cuenta en la intranet. Si aún no tienes cuenta, solicítala en Secretaría Académica.</p><h3>¿Dónde subo mi CV?</h3><p>En la intranet, en Bolsa laboral › Mi perfil. Es obligatorio para postular.</p><h3>¿Cómo sé si me seleccionaron?</h3><p>En la intranet verás el estado de cada postulación (Recibida, En revisión, Seleccionado) y recibirás un aviso.</p><h3>Soy empresa, ¿cuánto cuesta?</h3><p>Nada. El registro y la publicación de ofertas son gratuitos.</p></section>
+    <section class="card cb pz-bl-faq"><h2>Preguntas frecuentes</h2><h3>¿Quién puede postular?</h3><p>Estudiantes y egresados de ${esc(inst().nombre)} con cuenta en la intranet. Si aún no tienes cuenta, solicítala en Secretaría Académica.</p><h3>¿Dónde subo mi CV?</h3><p>En la intranet, en Bolsa laboral › Mi perfil. Es obligatorio para postular.</p><h3>¿Cómo sé si me seleccionaron?</h3><p>En la intranet verás el estado de cada postulación (Recibida, En revisión, Seleccionado) y recibirás un aviso.</p><h3>Soy empresa, ¿cuánto cuesta?</h3><p>Nada. El registro y la publicación de ofertas son gratuitos.</p></section>
    </div>`;
   const side = `<section class="side-box"><h2>Bolsa Laboral en cifras</h2><div class="pad pz-bl-kp"><div><b>${ofs.length}</b><span>ofertas vigentes</span></div><div><b>${vac}</b><span>vacantes</span></div><div><b>${emps.length}</b><span>empresas aliadas</span></div></div></section><section class="side-box"><h2>Responsable</h2><div class="pad" style="font-size:13.5px"><b>${esc(cfg.responsable)}</b><br><a href="mailto:${esc(cfg.correo)}">${esc(cfg.correo)}</a></div></section>`;
-  const html = shell(path, { title: 'Bolsa Laboral', desc: 'Bolsa Laboral del INSTITUTO PUBLICO DE ICA: ofertas de empleo y prácticas para estudiantes y egresados, y registro libre de empresas.', crumbs: [['Servicios', '#/servicios'], ['Bolsa Laboral']], banner: { kicker: 'Servicios en línea', title: 'Bolsa Laboral', text: 'Conectamos talento con empresas' }, side, body });
+  const html = shell(path, { title: 'Bolsa Laboral', desc: `Bolsa Laboral del ${inst().nombre}: ofertas de empleo y prácticas para estudiantes y egresados, y registro libre de empresas.`, crumbs: [['Servicios', '#/servicios'], ['Bolsa Laboral']], banner: { kicker: 'Servicios en línea', title: 'Bolsa Laboral', text: 'Conectamos talento con empresas' }, side, body });
   return { html, after: () => {
     const showTab = k => { $$('.pz-mt [data-tab]').forEach(x => x.setAttribute('aria-selected', x.dataset.tab === k)); $$('[data-pane]').forEach(p => p.hidden = p.dataset.pane !== k); if (k === 'e') { const b = $('[data-tab="pubbolsa:empresa"]'); if (b && b.getAttribute('aria-selected') !== 'true') b.click(); } };
     $$('.pz-mt [data-tab]').forEach(b => b.onclick = () => showTab(b.dataset.tab)); if (tab0 === 'e') showTab('e');

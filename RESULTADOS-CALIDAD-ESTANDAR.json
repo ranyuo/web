@@ -1,0 +1,316 @@
+{
+  "fecha": "2026-10-27T08:38:53-05:00",
+  "base_revisada": "4518d2b",
+  "entorno": {
+    "php": "8.4.27",
+    "mariadb": "11.8.6",
+    "navegador": "Chromium / Playwright",
+    "destino": "instancias locales de prueba; no Hostinger"
+  },
+  "scripts": {
+    "php": 15,
+    "javascript": 38,
+    "total": 53
+  },
+  "resultados": [
+    {
+      "suite": "run",
+      "exit": 0,
+      "seconds": 3.51
+    },
+    {
+      "suite": "parity",
+      "exit": 0,
+      "seconds": 6.91
+    },
+    {
+      "suite": "setup-workflows",
+      "exit": 0,
+      "seconds": 6.59
+    },
+    {
+      "suite": "setup-fixture",
+      "exit": 0,
+      "seconds": 0.03
+    },
+    {
+      "suite": "academic-crud",
+      "exit": 0,
+      "seconds": 1.64
+    },
+    {
+      "suite": "claims-verification",
+      "exit": 0,
+      "seconds": 0.1
+    },
+    {
+      "suite": "deep-contracts",
+      "exit": 0,
+      "seconds": 0.52
+    },
+    {
+      "suite": "deep-documents",
+      "exit": 0,
+      "seconds": 0.22
+    },
+    {
+      "suite": "deep-publication",
+      "exit": 0,
+      "seconds": 0.48
+    },
+    {
+      "suite": "deep-scholarships",
+      "exit": 0,
+      "seconds": 0.15
+    },
+    {
+      "suite": "demo-validation",
+      "exit": 0,
+      "seconds": 0.84
+    },
+    {
+      "suite": "migration",
+      "exit": 0,
+      "seconds": 5.94
+    },
+    {
+      "suite": "quality-lookups",
+      "exit": 0,
+      "seconds": 0.14
+    },
+    {
+      "suite": "regressions",
+      "exit": 0,
+      "seconds": 0.03
+    },
+    {
+      "suite": "roles-permissions",
+      "exit": 0,
+      "seconds": 0.08
+    },
+    {
+      "suite": "upgrade",
+      "exit": 0,
+      "seconds": 0.07
+    },
+    {
+      "suite": "demo-installation",
+      "exit": 0,
+      "seconds": 3.08
+    },
+    {
+      "suite": "http-smoke",
+      "exit": 0,
+      "seconds": 8.75
+    },
+    {
+      "suite": "browser-backups",
+      "exit": 0,
+      "seconds": 3.57
+    },
+    {
+      "suite": "browser-branding",
+      "exit": 0,
+      "seconds": 4.22
+    },
+    {
+      "suite": "browser-cargo-code",
+      "exit": 0,
+      "seconds": 8.08
+    },
+    {
+      "suite": "browser-claims-verification",
+      "exit": 0,
+      "seconds": 9.81
+    },
+    {
+      "suite": "browser-crud",
+      "exit": 0,
+      "seconds": 33.71
+    },
+    {
+      "suite": "browser-deep-accounts",
+      "exit": 0,
+      "seconds": 8.41
+    },
+    {
+      "suite": "browser-deep-documents",
+      "exit": 0,
+      "seconds": 9.59
+    },
+    {
+      "suite": "browser-deep-editorial",
+      "exit": 0,
+      "seconds": 8.64
+    },
+    {
+      "suite": "browser-deep-failures",
+      "exit": 0,
+      "seconds": 9.47
+    },
+    {
+      "suite": "browser-deep-focus",
+      "exit": 0,
+      "seconds": 2.26
+    },
+    {
+      "suite": "browser-deep-home-blocks",
+      "exit": 0,
+      "seconds": 18.8
+    },
+    {
+      "suite": "browser-deep-lifecycle",
+      "exit": 0,
+      "seconds": 88.67
+    },
+    {
+      "suite": "browser-deep-recovery",
+      "exit": 0,
+      "seconds": 6.07
+    },
+    {
+      "suite": "browser-deep-schedule",
+      "exit": 0,
+      "seconds": 3.44
+    },
+    {
+      "suite": "browser-deep-scholarships",
+      "exit": 0,
+      "seconds": 3.17
+    },
+    {
+      "suite": "browser-deep-settings",
+      "exit": 0,
+      "seconds": 11.84
+    },
+    {
+      "suite": "browser-document-reference",
+      "exit": 0,
+      "seconds": 3.34
+    },
+    {
+      "suite": "browser-editor-uploads",
+      "exit": 0,
+      "seconds": 3.24
+    },
+    {
+      "suite": "browser-libraries",
+      "exit": 0,
+      "seconds": 1.54
+    },
+    {
+      "suite": "browser-logout",
+      "exit": 0,
+      "seconds": 4.1
+    },
+    {
+      "suite": "browser-pagination",
+      "exit": 0,
+      "seconds": 2.48
+    },
+    {
+      "suite": "browser-parity",
+      "exit": 0,
+      "seconds": 24.35
+    },
+    {
+      "suite": "browser-profiles",
+      "exit": 0,
+      "seconds": 4.68
+    },
+    {
+      "suite": "browser-quality-academic",
+      "exit": 0,
+      "seconds": 14.1
+    },
+    {
+      "suite": "browser-quality-admin",
+      "exit": 0,
+      "seconds": 39.66
+    },
+    {
+      "suite": "browser-quality-controls",
+      "exit": 0,
+      "seconds": 20.79
+    },
+    {
+      "suite": "browser-quality-services",
+      "exit": 0,
+      "seconds": 9.44
+    },
+    {
+      "suite": "browser-quality-workflows",
+      "exit": 0,
+      "seconds": 8.08
+    },
+    {
+      "suite": "browser-quality",
+      "exit": 0,
+      "seconds": 12.83
+    },
+    {
+      "suite": "browser-quick-access",
+      "exit": 0,
+      "seconds": 5.28
+    },
+    {
+      "suite": "browser-roles",
+      "exit": 0,
+      "seconds": 5.83
+    },
+    {
+      "suite": "browser-services",
+      "exit": 0,
+      "seconds": 3.42
+    },
+    {
+      "suite": "browser-upgrade",
+      "exit": 0,
+      "seconds": 1.08
+    },
+    {
+      "suite": "browser-workflows",
+      "exit": 0,
+      "seconds": 6.6
+    },
+    {
+      "suite": "concurrency",
+      "exit": 0,
+      "seconds": 1.98
+    },
+    {
+      "suite": "demo-content",
+      "exit": 0,
+      "seconds": 0.07
+    },
+    {
+      "suite": "browser-seed-editability",
+      "exit": 0,
+      "seconds": 64.99
+    }
+  ],
+  "comprobaciones_adicionales": [
+    {
+      "suite": "cron-smoke",
+      "exit": 0
+    }
+  ],
+  "datos_iniciales_validados": 255,
+  "fichas_personal_editadas_y_restituidas": 52,
+  "guardados_reales_de_fichas": 104,
+  "publico": {
+    "routes": 72,
+    "links": 5736,
+    "errors": 0,
+    "broken": 0,
+    "layout": 0
+  },
+  "administracion": {
+    "routes": 694,
+    "links": 32984,
+    "profiles": 11,
+    "errors": 0,
+    "broken": 0,
+    "layout": 0
+  }
+}

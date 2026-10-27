@@ -22,6 +22,11 @@ const exists = (rows, id) => rows.some(row => row.id === id);
 for (const row of data.jerarquica) assert.ok(exists(data.personas, row.personaId));
 for (const row of data.programas) assert.ok(exists(data.personas, row.coordinadorId));
 for (const row of data.certificados) assert.equal(row.estado, 'Válido');
+assert.equal(data.config.home.accesos.length, 4);
+assert.ok(data.config.home.accesos.every(x => x.titulo && x.enlace.startsWith('#/servicios/')));
+assert.ok(data.config.home.beneficios.length <= 8);
+assert.equal(new Set(data.personas.map(x => x.dni)).size, data.personas.length);
+assert.ok(data.personas.every(x => /^[0-9]{8}$/.test(x.dni) && ['Nombrado', 'Contratado'].includes(x.condicion)));
 const a = data.academico;
 for (const row of a.estudiantes) assert.ok(exists(a.programas, row.prog));
 for (const row of a.certs) {

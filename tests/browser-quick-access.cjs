@@ -1,0 +1,19 @@
+/* Accesos de portada: referencias activas/inactivas, aviso administrativo y persistencia. */
+const {chromium}=require('playwright');const assert=require('node:assert/strict');
+const base=process.env.PISCO_BASE_URL||'http://127.0.0.1:8086';if(!['127.0.0.1','localhost'].includes(new URL(base).hostname))throw Error('Solo pruebas locales.');
+(async()=>{const b=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']});try{
+ const c=await b.newContext();await c.route('https://**/*',r=>r.abort());const p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto(base+'/#/admin');await p.locator('#lg-u').fill('admin');await p.locator('#lg-p').fill('PruebaOriginal-2026!');await p.locator('[data-login] button[type=submit]').click();await p.waitForFunction(()=>window.PORTAL_BOOTSTRAP?.user&&typeof DB!=='undefined'&&DB?.config&&typeof IX!=='undefined'&&IX);
+ const original=await p.evaluate(()=>({home:structuredClone(DB.config.home),links:structuredClone(DB.enlaces),admissions:structuredClone(DB.admisiones)}));
+ await p.goto(base+'/#/admin/portada');assert.match(await p.locator('[data-custom=estadoAccesos]').innerText(),/4 de 4/);
+ await p.locator('[data-rows=accesos] [data-ri="1"][data-rc=enlace]').fill('ext:biblioteca');assert.match(await p.locator('[data-custom=estadoAccesos]').innerText(),/3 de 4/);assert.ok(await p.locator('[data-custom=estadoAccesos] a[href="#/admin/enlaces/biblioteca"]').count());
+ await p.getByRole('button',{name:'Guardar cambios',exact:true}).click();await p.reload();assert.match(await p.locator('[data-custom=estadoAccesos]').innerText(),/3 de 4/);
+ const g=await b.newContext();await g.route('https://**/*',r=>r.abort());const guest=await g.newPage();await guest.goto(base+'/');assert.equal(await guest.locator('section[aria-label="Accesos rápidos"] a').count(),3);
+ await p.goto(base+'/#/admin/enlaces/biblioteca');await p.locator('[name=url]').fill('https://biblioteca.example/recursos');await p.locator('[name=estado]').selectOption('Activo');await p.getByRole('button',{name:'Guardar cambios',exact:true}).click();await p.waitForURL('**/#/admin/enlaces');await p.goto(base+'/#/admin/portada');assert.match(await p.locator('[data-custom=estadoAccesos]').innerText(),/4 de 4/);
+ await guest.reload();assert.equal(await guest.locator('section[aria-label="Accesos rápidos"] a').count(),4);assert.equal(await guest.locator('section[aria-label="Accesos rápidos"] a[href="https://biblioteca.example/recursos"]').count(),1);
+ await p.locator('[data-radd=accesos]').click();await p.getByRole('button',{name:'Guardar cambios',exact:true}).click();await p.locator('[data-f=accesos] .errmsg').waitFor();assert.ok((await p.locator('[data-f=accesos] .errmsg').innerText()).includes('título y el enlace'));
+ await p.evaluate(original=>{DB.config.home=original.home;DB.enlaces=original.links;if(!saveDB())throw Error('No se restituyeron los accesos');},original);
+ await p.evaluate(()=>{const current=DB.admisiones.find(a=>a.vigente&&a.estado==='Publicado');current.anio=2099;if(!saveDB())throw Error('No se cambió la admisión');});await guest.reload();assert.match(await guest.locator('.home-announcement').innerText(),/2099/);
+ await p.evaluate(()=>{DB.admisiones.forEach(a=>{a.vigente=false;a.estado='Cerrado'});if(!saveDB())throw Error('No se cerró la admisión');});await guest.reload();assert.equal(await guest.locator('.home-announcement').count(),0);
+ await p.evaluate(original=>{DB.admisiones=original.admissions;if(!saveDB())throw Error('No se restituyó la admisión');},original);
+ assert.deepEqual(errors,[]);console.log('OK franja de admisión sigue al proceso vigente y se oculta cuando no existe.');console.log('OK cuatro accesos, aviso en vivo al ocultarse uno, activación externa, validación de filas vacías y persistencia.');await g.close();
+ }finally{await b.close();}})().catch(e=>{console.error(e);process.exitCode=1});

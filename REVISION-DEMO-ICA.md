@@ -2,6 +2,8 @@
 
 Fecha: 27 de octubre de 2026.
 
+La revisión ampliada y los resultados más recientes están en [CONTROL-CALIDAD-ESTANDAR.md](CONTROL-CALIDAD-ESTANDAR.md). Este documento conserva el alcance y las observaciones de la revisión inicial.
+
 ## Corrección posterior: cierre de sesión
 
 La prueba en Hostinger reveló una ruta no cubierta por la revisión inicial: el botón de salida envía `DELETE /api/session` sin cuerpo y el servidor intentaba leer JSON antes de cerrar la sesión. Esto producía HTTP 422 y mantenía la sesión abierta. `public_html/index.php` ahora procesa esa ruta después de verificar CSRF y antes de leer el cuerpo.

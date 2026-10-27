@@ -5,6 +5,9 @@ function actor(string $name):void{global$db;$s=$db->prepare('SELECT id,auth_vers
 function save(array $d):array{global$app;$b=$app->bootstrap();return$app->save(['data'=>$d,'revision'=>$b['revision']]);}
 function reject(string $label,string $user,callable $edit,int $status=422):void{global$app,$db,$results;actor('admin');$full=$app->bootstrap()['data'];actor($user);$before=$app->bootstrap()['data'];$next=$before;$edit($next);$raw=$db->query('SELECT data FROM pisco_state WHERE id=1')->fetchColumn();$accepted=false;$ok=false;$error='';try{save($next);$accepted=true;}catch(PortalError$e){$ok=$e->status===$status;$error=$e->getMessage();}if($accepted){actor('admin');save($full);}else$ok=$ok&&$raw===$db->query('SELECT data FROM pisco_state WHERE id=1')->fetchColumn();$results[]=['label'=>$label,'ok'=>$ok,'accepted'=>$accepted];echo($ok?'OK ':'FALLO ').$label.($accepted?' — aceptado indebidamente':($ok?'':' — '.$error))."\n";}
 reject('Enlace activo de portada exige protocolo permitido','imagen',function(&$d){$d['config']['home']['accesos'][0]['enlace']='javascript:alert(1)';});
+reject('Acceso rápido exige título antes de guardar','imagen',function(&$d){$d['config']['home']['accesos'][0]['titulo']='';});
+reject('Carrusel rechaza enlaces ejecutables desde la API','imagen',function(&$d){$d['slides'][0]['enlace']='javascript:alert(1)';});
+reject('Servicio externo rechaza una URL incompleta','imagen',function(&$d){$d['enlaces'][0]['url']='https://';});
 reject('Ventana emergente rechaza fecha final anterior','admin',function(&$d){$d['config']['popup']['inicio']='2026-10-26';$d['config']['popup']['fin']='2026-10-01';});
 reject('Visibilidad de bloques es una casilla booleana','imagen',function(&$d){$d['config']['home']['bloques'][0]['on']='false';});
 reject('Portada respeta el máximo de ocho beneficios','imagen',function(&$d){$d['config']['home']['beneficios'][]=$d['config']['home']['beneficios'][0];});

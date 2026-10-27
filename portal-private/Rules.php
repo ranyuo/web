@@ -4,6 +4,12 @@ final class PortalRules
 {
     public static function normal(string $value): string
     {$value=strtr($value,['Á'=>'A','É'=>'E','Í'=>'I','Ó'=>'O','Ú'=>'U','Ñ'=>'N','á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u','ñ'=>'n','ü'=>'u']);return strtolower(trim(preg_replace('/\s+/u',' ',$value)));}
+    public static function safeLink(mixed $value,bool $internal=true): bool
+    {
+        if(!is_string($value))return false;if($value==='')return true;
+        if($internal&&(str_starts_with($value,'#/')||preg_match('/^ext:[A-Za-z0-9_-]+$/D',$value)))return true;
+        return (bool)filter_var($value,FILTER_VALIDATE_URL)&&(bool)preg_match('#^https?://#i',$value);
+    }
     public static function safeImage(mixed $value): bool
     {
         if(!is_string($value))return false;if($value==='')return true;
@@ -24,6 +30,10 @@ final class PortalRules
     public static function apply(array $old,array &$new,array $user): void
     {
         self::settings($old,$new);
+        foreach($new['slides'] as $slide)if(!($slide['deleted']??false)&&self::changed($old['slides'],$slide)){
+            if(!self::safeLink($slide['enlace']??''))throw new PortalError(422,'El enlace del carrusel debe ser una ruta interna, ext:id o una URL http/https válida.');
+            if(!empty($slide['boton'])&&empty($slide['enlace']))throw new PortalError(422,'Indica el enlace del botón del carrusel.');
+        }
         foreach($new['estadisticas'] as $row)if(self::changed($old['estadisticas'],$row)){
             if(filter_var($row['anio']??null,FILTER_VALIDATE_INT)===false||$row['anio']<2000||$row['anio']>2100||!PortalPolicy::find($new['programas'],'id',$row['programaId']??null))throw new PortalError(422,'El año y programa de la estadística deben ser válidos.');
             foreach(['postulantes','ingresantes','matriculados','egresados','titulados','becas','creditos'] as $key)if(isset($row[$key])&&(filter_var($row[$key],FILTER_VALIDATE_INT)===false||$row[$key]<0))throw new PortalError(422,'Los indicadores estadísticos deben ser enteros no negativos.');
@@ -88,12 +98,15 @@ final class PortalRules
     private static function settings(array $old,array $new): void
     {
         $changed=fn(string $key)=>!PortalPolicy::equal($old['config'][$key]??null,$new['config'][$key]??null);
-        $link=function(mixed $value,bool $internal=true):bool{if(!is_string($value))return false;if($value==='')return true;if($internal&&(str_starts_with($value,'#/')||preg_match('/^ext:[A-Za-z0-9_-]+$/D',$value)))return true;return (bool)filter_var($value,FILTER_VALIDATE_URL)&&(bool)preg_match('#^https?://#i',$value);};
+        $link=fn(mixed $value,bool $internal=true):bool=>self::safeLink($value,$internal);
         if($changed('home')){
             $home=$new['config']['home']??null;if(!is_array($home))throw new PortalError(422,'La configuración de portada no es válida.');
             foreach(['bloques','accesos','cifras','beneficios'] as $key)if(!is_array($home[$key]??null)||!array_is_list($home[$key]))throw new PortalError(422,'La lista de portada '.$key.' no es válida.');
             $seen=[];foreach($home['bloques'] as $block){if(!is_array($block)||!is_string($block['k']??null)||isset($seen[$block['k']])||!is_bool($block['on']??null))throw new PortalError(422,'La visibilidad y el orden de los bloques deben ser válidos.');$seen[$block['k']]=true;}
-            foreach($home['accesos'] as $access)if(!is_array($access)||!$link($access['enlace']??''))throw new PortalError(422,'El enlace de acceso rápido debe ser una ruta interna, ext:id o una URL http/https.');
+            foreach($home['accesos'] as $access){
+                if(!is_array($access)||!is_string($access['titulo']??null)||trim($access['titulo'])===''||!is_string($access['enlace']??null)||trim($access['enlace'])==='')throw new PortalError(422,'Cada acceso rápido necesita un título y un enlace.');
+                if(!$link($access['enlace']))throw new PortalError(422,'El enlace de acceso rápido debe ser una ruta interna, ext:id o una URL http/https.');
+            }
             foreach($home['cifras'] as $figure)if(!is_array($figure)||!is_scalar($figure['corte']??null)||trim((string)$figure['corte'])==='')throw new PortalError(422,'Cada cifra institucional debe indicar su año de corte.');
             if(count($home['beneficios'])>8&&!PortalPolicy::equal($old['config']['home']['beneficios']??null,$home['beneficios']))throw new PortalError(422,'La portada admite como máximo ocho beneficios.');
         }
@@ -124,6 +137,15 @@ final class PortalRules
     public static function catalogs(array &$new): void
     {
         $a=&$new['academico'];
+        $institution=$new['config']['inst'];
+        $a['cfg']['nombre']=$institution['nombre'];$a['cfg']['siglas']=$institution['nombreCorto'];$a['cfg']['direccion']=$institution['direccion'];
+        $host=$_SERVER['HTTP_HOST']??'';
+        if(is_string($host)&&preg_match('/^(?:[a-z0-9.-]+|\[[0-9a-f:]+\])(?::[0-9]{1,5})?$/iD',$host))$a['cfg']['web']=$host;
+        foreach($new['jerarquica'] as $leader)if(!($leader['deleted']??false)&&($leader['esDirector']??false)&&($leader['estado']??'')==='Publicado'){
+            $person=PortalPolicy::find($new['personas'],'id',$leader['personaId']);
+            if($person&&!($person['deleted']??false))$a['cfg']['director']=trim(($person['titulo']??'').' '.$person['nombres'].' '.$person['apellidos']);
+            break;
+        }
         foreach($new['programas'] as $p){if($p['deleted']??false)continue;$id=$a['progMap'][$p['id']]??null;
             if($id===null||!PortalPolicy::find($a['programas'],'id',$id)){$id??=max([0,...array_values($a['progMap']),...array_column($a['programas'],'id')])+1;$a['progMap'][$p['id']]=$id;$a['programas'][]=['id'=>$id,'pid'=>$p['id'],'cod'=>($p['codigo']??'')?:'P'.$id,'nombre'=>$p['nombre'],'dur'=>$p['duracion']??'3 años','sem'=>6,'activo'=>($p['estado']??'')==='Publicado'];}
             foreach($a['programas'] as &$r)if($r['id']===$id){$r['nombre']=$p['nombre'];$r['cod']=($p['codigo']??'')?:$r['cod'];$r['activo']=($p['estado']??'')==='Publicado';$r['pid']=$p['id'];}unset($r);

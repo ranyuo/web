@@ -127,7 +127,8 @@ IXHOST.defaultPermissions=function(){return portalBootstrap.data.academico.perms
 IXHOST.registerCompany=function(values){return portalRequest('POST','/api/empresas',{...values,password:values.pass});};
 async function portalUpload(file){
   const body=new FormData();body.append('file',file);if(!currentUser()){const purpose=document.querySelector('#cap-mpv,#cap-mp')?'expedientes':'reclamos';body.append('purpose',purpose);body.append('proof',JSON.stringify(portalProofs[purpose]||{}));}
-  const response=await fetch(portalURL('/api/archivos'),{method:'POST',headers:{'Accept':'application/json','X-CSRF-TOKEN':portalBootstrap.csrf},body});const data=await response.json();
+  const response=await fetch(portalURL('/api/archivos'),{method:'POST',headers:{'Accept':'application/json','X-CSRF-TOKEN':portalBootstrap.csrf},body});let data;
+  try{data=await response.json();}catch{throw new Error('No se pudo subir el archivo. El servidor no devolvió una respuesta válida.');}
   if(!response.ok)throw new Error(data.message||'No se pudo subir el archivo.');return data.file;
 }
 
@@ -144,7 +145,7 @@ document.addEventListener('change',async event=>{
   input._portalUploading=true;
   try{input._portalFiles=await Promise.all(files.map(portalUpload));}catch(error){input._portalFiles=null;input.value='';toast(error.message,'err');}finally{input._portalUploading=false;}
 },true);
-document.addEventListener('submit',event=>{if(event.target.querySelector('input[type=file]')&&[...event.target.querySelectorAll('input[type=file]')].some(i=>i._portalUploading)){event.preventDefault();event.stopImmediatePropagation();toast('Espera a que termine la carga del archivo.','warn');}},true);
+document.addEventListener('submit',event=>{if(EDITOR_UPLOADS.size||[...event.target.querySelectorAll('input[type=file]')].some(i=>i._portalUploading)){event.preventDefault();event.stopImmediatePropagation();toast('Espera a que termine la carga del archivo.','warn');}},true);
 // El horario y los catálogos se generan con los datos del servidor; no se crean cifras ficticias.
 seedVisits=function(){};
 countVisit=function(){};

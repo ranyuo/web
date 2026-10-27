@@ -1,6 +1,6 @@
 # INSTITUTO PUBLICO DE ICA — Portal de demostración
 
-[Revisión funcional de esta edición y alcance de las pruebas](REVISION-DEMO-ICA.md).
+[Control de calidad ampliado, correcciones y pasos para actualizar](CONTROL-CALIDAD-ESTANDAR.md).
 
 Esta edición incluye identidad, personas, empresas, contactos e imágenes de demostración. Los correos `.example` son referenciales y las redes/WhatsApp quedan sin destinos activos. Conserva los módulos, rutas, relaciones e identificadores internos del sistema original.
 
