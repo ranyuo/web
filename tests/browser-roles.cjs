@@ -1,6 +1,7 @@
 /* Solo entorno de pruebas local. Cuentas sintéticas; no usa Hostinger. */
 const {chromium}=require('playwright'),assert=require('node:assert/strict');
-const base='http://127.0.0.1:8087';
+const base=process.env.PISCO_BASE_URL||'http://127.0.0.1:8086';
+if(!['127.0.0.1','localhost'].includes(new URL(base).hostname))throw Error('Solo pruebas locales.');
 (async()=>{const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']});let n=0,admin,restore;
 const login=async(p,u)=>{await p.goto(base+'/#/admin');await p.locator('#lg-u').fill(u);await p.locator('#lg-p').fill('PruebaOriginal-2026!');await p.locator('[data-login] button[type=submit]').click();await p.waitForFunction(()=>window.PORTAL_BOOTSTRAP?.user);};
 try{const context=await browser.newContext();await context.route('https://**/*',r=>r.abort());admin=await context.newPage();const errors=[];admin.on('pageerror',e=>errors.push(e.message));await login(admin,'admin');await admin.goto(base+'/#/admin/usuarios');await admin.getByRole('link',{name:'Editar roles y permisos',exact:true}).waitFor();n++;

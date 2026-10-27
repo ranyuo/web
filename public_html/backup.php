@@ -8,7 +8,7 @@ try {
     $db=$app->db();$tables=['pisco_state','pisco_users','pisco_schema','pisco_visits','pisco_files','pisco_rate_limits','pisco_audit','pisco_settings'];
     $db->exec('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ');$db->beginTransaction();
     PortalAudit::write($app,'Descargar respaldo','Respaldos');
-    header('Content-Type: application/sql; charset=utf-8');header('Content-Disposition: attachment; filename="portal-pisco-'.date('Ymd-His').'.sql"');
+    header('Content-Type: application/sql; charset=utf-8');header('Content-Disposition: attachment; filename="portal-ica-'.date('Ymd-His').'.sql"');
     echo "-- Copia privada del portal. Contiene cuentas y archivos.\nSET NAMES utf8mb4;\nSET SQL_MODE='NO_AUTO_VALUE_ON_ZERO';\nSET FOREIGN_KEY_CHECKS=0;\n";
     foreach($tables as $table){
         $ddl=$db->query('SHOW CREATE TABLE '.$table)->fetch(PDO::FETCH_NUM)[1];echo 'DROP TABLE IF EXISTS `'.$table."`;\n".$ddl.";\n";

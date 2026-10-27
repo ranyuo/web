@@ -10,6 +10,7 @@ const keys=await p.evaluate(()=>Object.keys(SPECS));for(const key of keys){await
  if(collection==='jerarquica'){work.esDirector=false;work.cargo='Cargo de prueba '+suffix;}
  if(collection==='documentos'){work.grupo='prueba-'+suffix;work.version='88.0';work.nombre='Plan de prueba '+suffix;work.refModulo='';}
  if(collection==='programas')work.codigo='T'+suffix.slice(-6);
+ if(collection==='enlaces')work.url='https://servicio.example/prueba-'+suffix;
  if(collection==='tupa'){work.anio=2091;work.codigo='UI-'+suffix;}
  if(collection==='becasPeriodos'){work.anio=2091;work.periodo='II';}
  if(collection==='becarios'){work.dni='78888882';work.apellidos='Prueba';work.nombres='Interfaz';}

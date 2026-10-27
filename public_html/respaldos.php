@@ -28,7 +28,7 @@ try{
     if(!$restored){$schedule=PortalBackups::config($app);$backups=PortalBackups::listing();}
 }catch(Throwable $e){if(!$e instanceof PortalError)portal_error($e);http_response_code($e->status);$error=$e->getMessage();}
 function e(string $v):string{return htmlspecialchars($v,ENT_QUOTES,'UTF-8');}
-?><!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Respaldos | Portal Pisco</title><link rel="stylesheet" href="/forms.css"></head><body><main style="max-width:1050px"><a href="/#/admin/respaldo">Volver a la intranet</a><h1>Respaldos y restauración</h1>
+?><!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Respaldos | Portal ICA</title><link rel="stylesheet" href="/forms.css"></head><body><main style="max-width:1050px"><a href="/#/admin/respaldo">Volver a la intranet</a><h1>Respaldos y restauración</h1>
 <?php if($error):?><p class="notice" role="alert"><?=e($error)?></p><?php endif ?>
 <?php if($message):?><p class="notice success" role="status"><?=e($message)?></p><?php endif ?>
 <?php if($restored):?><p><a href="/#/admin">Iniciar sesión</a></p>

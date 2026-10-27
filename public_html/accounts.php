@@ -28,7 +28,7 @@ try {
 }
 function e(string $value): string { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); }
 ?><!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cuentas | Portal Pisco</title><link rel="stylesheet" href="/forms.css"></head>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cuentas | Portal ICA</title><link rel="stylesheet" href="/forms.css"></head>
 <body><main><a href="/#/admin/dashboard">← Volver al panel</a><h1>Cuentas del portal</h1>
 <?php if ($notice): ?><p class="notice success" role="status"><?= e($notice) ?></p><?php endif ?>
 <?php if ($error): ?><p class="notice" role="alert"><?= e($error) ?></p><?php endif ?>

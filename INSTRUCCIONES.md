@@ -1,8 +1,10 @@
 La versión unificada está en main. Para esta actualización lee también CORRECCION-RECLAMOS.md y ejecuta actualizar.php para completar códigos de reclamos anteriores.
 
-# Portal Pisco para Hostinger: PHP y MySQL, sin Laravel
+# INSTITUTO PUBLICO DE ICA para Hostinger: PHP y MySQL, sin Laravel
 
-Esta es la versión elegida para desplegar en hPanel. No utiliza Laravel, Composer, npm, un servidor Node ni acceso SSH. Necesita PHP 8.2 o posterior, PDO MySQL, sesiones, Fileinfo y Zlib. Se valida con PHP 8.4 y MySQL 8.4; las consultas no usan funciones exclusivas de MySQL 8.
+Esta es la versión elegida para desplegar en hPanel. No utiliza Laravel, Composer, npm, un servidor Node ni acceso SSH. Necesita PHP 8.2 o posterior, PDO MySQL, sesiones, Fileinfo y Zlib. Esta edición se revisó con PHP 8.4 y MariaDB 11.8. Las consultas no usan funciones exclusivas de MySQL 8.
+
+Para una **instalación nueva de demostración**, sigue «Instalar en `tu-dominio.example`» con una base vacía. Actualizar una instalación existente conserva sus datos y no carga la identidad neutra.
 
 ## Actualizar tu instalación existente
 
@@ -12,13 +14,13 @@ No vuelvas a instalar ni borres tu base de datos. Los cambios se aplican sobre t
 2. Descarga el ZIP de la rama indicada en GitHub y extráelo en tu computadora.
 3. Sube los archivos de **portal-private** a la carpeta **portal-private** que ya existe, junto a `public_html`. Incluye todos los archivos y subcarpetas del paquete, no solo los que ya existían. Conserva también la carpeta privada **backups**, si existe. No reemplaces ni elimines **config.php**.
 4. Sube el contenido de **public_html** dentro del **public_html** de tu dominio. Incluye **assets/vendor**, `.htaccess` y `.user.ini`. No crees `public_html/public_html`.
-5. Abre **https://region.aplicacion.io/actualizar.php**. Introduce el valor `install_key` de tu configuración privada y pulsa **Actualizar conservando los datos**. No uses la contraseña de MySQL ni la del administrador en ese campo.
+5. Abre **https://tu-dominio.example/actualizar.php**. Introduce el valor `install_key` de tu configuración privada y pulsa **Actualizar conservando los datos**. No uses la contraseña de MySQL ni la del administrador en ese campo.
 6. Abre la intranet con tu usuario y contraseña habituales. La actualización conserva el contenido y las cuentas existentes. Esas cuentas mantienen su rol de administrador; crea los demás perfiles desde Usuarios.
 7. Limpia la caché del sitio en hPanel y recarga el navegador con Ctrl+F5. Comprueba guardado y lectura desde otra ventana privada. Elimina **actualizar.php** y **recuperar.php** del directorio público cuando termines. Puedes borrar también **install.php** si ya estaba instalado.
 
 El actualizador añade columnas y tablas; no carga de nuevo los datos de ejemplo. Guarda una instantánea privada del contenido y cuentas en `pisco_upgrade_backups` antes del cambio. La copia independiente de hPanel sigue siendo necesaria para recuperar también archivos de código si una subida queda incompleta.
 
-## Instalar en `region.aplicacion.io`
+## Instalar en `tu-dominio.example`
 
 1. En hPanel entra a **Databases → Management**. Crea una base MySQL y un usuario con acceso a esa base. Copia los nombres completos con el prefijo de Hostinger. Guarda la contraseña en privado.
 2. Abre **Files → File manager**. Usa un sitio de prueba o guarda una copia de los archivos del sitio antes de reemplazar su página principal.
@@ -52,9 +54,9 @@ El actualizador añade columnas y tablas; no carga de nuevo los datos de ejemplo
    - `install_key`: una clave aleatoria privada de al menos 32 caracteres. Puedes generarla con un gestor de contraseñas. Se pedirá al instalar y para operaciones privadas de actualización o recuperación.
 
    Conserva las comillas de PHP. Si un valor contiene una comilla simple, escríbela como `\'`; una barra invertida como `\\`. Mantén `secure_cookies => true`, porque el sitio usa HTTPS. No compartas este archivo ni lo subas a GitHub.
-5. Abre **`https://region.aplicacion.io/install.php`**. Introduce la clave de instalación y el nombre, usuario, correo y contraseña de tu administrador. La contraseña debe tener entre 12 y 72 caracteres (máximo 72 bytes).
+5. Abre **`https://tu-dominio.example/install.php`**. Introduce la clave de instalación y el nombre, usuario, correo y contraseña de tu administrador. La contraseña debe tener entre 12 y 72 caracteres (máximo 72 bytes).
 6. Pulsa **Instalar y crear mi cuenta**. El instalador crea las tablas y carga el contenido inicial. No hay que importar un SQL manualmente. Al existir una cuenta, el instalador se bloquea y no permite reinstalar encima de ella.
-7. Abre **`https://region.aplicacion.io/`**. Entra por Intranet con tu cuenta. Puedes borrar `public_html/install.php` después de completar la instalación.
+7. Abre **`https://tu-dominio.example/`**. Entra por Intranet con tu cuenta. Puedes borrar `public_html/install.php` después de completar la instalación.
 
 No cambies el nombre de `portal-private`, salvo que adaptes las rutas de los tres PHP públicos. Esta distribución está preparada para la raíz del dominio o subdominio, no para una subcarpeta de la URL.
 

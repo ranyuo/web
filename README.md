@@ -1,5 +1,7 @@
 # INSTITUTO PUBLICO DE ICA — Portal de demostración
 
+[Revisión funcional de esta edición y alcance de las pruebas](REVISION-DEMO-ICA.md).
+
 Esta edición incluye identidad, personas, empresas, contactos e imágenes de demostración. Los correos `.example` son referenciales y las redes/WhatsApp quedan sin destinos activos. Conserva los módulos, rutas, relaciones e identificadores internos del sistema original.
 
 Los datos neutros se cargan en **instalaciones nuevas** desde `portal-private/data/portal.json`. Actualizar archivos sobre una instalación existente no sustituye el contenido guardado en MySQL. Para presentar esta demo, utiliza una base nueva y la instalación habitual; no reinstales sobre una base de producción. Las evidencias históricas de `evidencias/` corresponden al proyecto original y no forman parte del contenido de esta demo.

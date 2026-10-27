@@ -110,7 +110,7 @@ trait PortalAccounts
             $state=json_decode($this->state()['data'],true);$student=PortalPolicy::find($state['academico']['estudiantes']??[],'id',$input['student_id']??null);
             if(!$student)throw new PortalError(422,'Alumno no encontrado.');
             if($role==='coordinador'&&($student['prog']??null)!==($state['academico']['progMap'][$actor['programaId']]??null))throw new PortalError(403,'Alumno de otro programa.');
-            $password='Pisco!'.bin2hex(random_bytes(8));
+            $password='DemoICA!'.bin2hex(random_bytes(8));
             $fields=['username'=>(string)$student['dni'],'name'=>$student['nom'],'email'=>($student['correo']??'')?:$student['dni'].'@portal.invalid','password'=>$password,'role'=>in_array($student['estado'],['Egresado','Titulado'],true)?'egresado':'estudiante','vin'=>'est:'.$student['id'],'dni'=>(string)$student['dni']];
             $this->createAccount($fields,false);return ['user'=>$this->accountDto($this->db()->query('SELECT * FROM pisco_users WHERE username = '.$this->db()->quote(strtolower($fields['username'])))->fetch()),'temporary_password'=>$password];
         }

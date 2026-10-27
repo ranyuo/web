@@ -21,6 +21,7 @@ inspect(data);
 const exists = (rows, id) => rows.some(row => row.id === id);
 for (const row of data.jerarquica) assert.ok(exists(data.personas, row.personaId));
 for (const row of data.programas) assert.ok(exists(data.personas, row.coordinadorId));
+for (const row of data.certificados) assert.equal(row.estado, 'Válido');
 const a = data.academico;
 for (const row of a.estudiantes) assert.ok(exists(a.programas, row.prog));
 for (const row of a.certs) {

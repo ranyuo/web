@@ -19,8 +19,8 @@ try {
 }
 function e(string $value): string { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); }
 ?><!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Instalar portal Pisco</title><link rel="stylesheet" href="/forms.css"></head>
-<body><main><h1>Instalar portal Pisco</h1>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Instalar portal ICA</title><link rel="stylesheet" href="/forms.css"></head>
+<body><main><h1>Instalar portal ICA</h1>
 <?php if ($closed): ?>
 <section><p>El portal ya está instalado. El instalador quedó bloqueado.</p><a href="/">Ir al portal</a></section>
 <?php elseif ($success): ?>

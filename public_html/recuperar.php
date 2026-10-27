@@ -57,7 +57,7 @@ if ($authorized) {
     catch (Throwable $exception) { portal_error($exception); }
 }
 function e(string $value): string { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); }
-?><!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Recuperar acceso | Portal Pisco</title><link rel="stylesheet" href="/forms.css"></head>
+?><!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Recuperar acceso | Portal ICA</title><link rel="stylesheet" href="/forms.css"></head>
 <body><main><h1>Recuperar acceso al portal</h1>
 <?php if ($error): ?><p class="notice" role="alert"><?= e($error) ?></p><?php endif ?>
 <?php if ($done): ?>
