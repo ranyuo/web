@@ -1,8 +1,12 @@
-# Portal IESTP Pisco — PHP y MySQL para Hostinger
+# INSTITUTO PUBLICO DE ICA — Portal de demostración
+
+Esta edición incluye identidad, personas, empresas, contactos e imágenes de demostración. Los correos `.example` son referenciales y las redes/WhatsApp quedan sin destinos activos. Conserva los módulos, rutas, relaciones e identificadores internos del sistema original.
+
+Los datos neutros se cargan en **instalaciones nuevas** desde `portal-private/data/portal.json`. Actualizar archivos sobre una instalación existente no sustituye el contenido guardado en MySQL. Para presentar esta demo, utiliza una base nueva y la instalación habitual; no reinstales sobre una base de producción. Las evidencias históricas de `evidencias/` corresponden al proyecto original y no forman parte del contenido de esta demo.
 
 La rama `main` contiene la versión unificada con las correcciones de la revisión profunda, el cargo de Mesa de Partes y el Libro de Reclamaciones.
 
-[Descargar la versión completa de main](https://github.com/ranyuo/portal/archive/refs/heads/main.zip)
+[Descargar la versión completa de main](https://github.com/ranyuo/web/archive/refs/heads/main.zip)
 
 ## Tecnologías y carpetas
 
@@ -18,7 +22,7 @@ PHP sin Laravel, MySQL, HTML, CSS y JavaScript. No requiere Composer, Node ni co
 1. Guarda una copia de archivos y base de datos en hPanel.
 2. Descarga el ZIP y sube el contenido de portal-private a la carpeta privada existente. **Conserva config.php y backups**; tu configuración privada no está incluida en este repositorio.
 3. Sube el contenido de public_html al public_html del dominio, incluidos assets/vendor y los archivos ocultos. No crees public_html/public_html.
-4. Abre https://region.aplicacion.io/actualizar.php y ejecuta la actualización con tu install_key. Este paso completa códigos de verificación de reclamos anteriores sin cambiar sus números de seguimiento, usuarios o contraseñas.
+4. Abre https://tu-dominio.example/actualizar.php y ejecuta la actualización con tu install_key. Este paso completa códigos de verificación de reclamos anteriores sin cambiar sus números de seguimiento, usuarios o contraseñas.
 5. Limpia la caché y comprueba el portal desde una ventana privada. Vuelve a descargar los cargos y constancias para ver sus cambios.
 6. Al finalizar elimina actualizar.php, recuperar.php e install.php del directorio público. No reinstales ni importes schema.sql sobre tu base existente.
 
