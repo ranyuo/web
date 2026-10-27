@@ -2,6 +2,12 @@
 
 Fecha: 27 de octubre de 2026.
 
+## Corrección posterior: cierre de sesión
+
+La prueba en Hostinger reveló una ruta no cubierta por la revisión inicial: el botón de salida envía `DELETE /api/session` sin cuerpo y el servidor intentaba leer JSON antes de cerrar la sesión. Esto producía HTTP 422 y mantenía la sesión abierta. `public_html/index.php` ahora procesa esa ruta después de verificar CSRF y antes de leer el cuerpo.
+
+Se añadió y ejecutó `tests/browser-logout.cjs`: reproduce la solicitud sin cuerpo, comprueba el rechazo de CSRF incorrecto y verifica los botones de salida desde el escritorio y el módulo de alumnos. En ambos casos, tras cerrar y recargar, el usuario queda sin sesión y las cuentas privadas devuelven 403. Esta corrección requiere reemplazar únicamente `public_html/index.php` en una instalación existente; conserva la base y la configuración privada.
+
 Resultado: las pruebas locales de esta edición terminaron aprobadas después de corregir los datos y ajustar los preparativos de las pruebas. Se ejecutaron los 15 scripts PHP y los 31 scripts JavaScript de `tests/`. Las pruebas que modifican contenido utilizaron exclusivamente bases desechables terminadas en `_test`; no se accedió a Hostinger ni a una base de producción.
 
 ## Entorno y alcance

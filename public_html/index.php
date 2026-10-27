@@ -14,6 +14,8 @@ try {
         }
         if ($route === 'api/archivo' && $method === 'GET') PortalFiles::serve($app, is_string($_GET['id']??null)?$_GET['id']:'');
         if ($route === 'api/archivos' && $method === 'POST') portal_json($app->upload(),201);
+        // Cerrar sesión no necesita un cuerpo JSON; la protección CSRF ya se comprobó.
+        if ($route === 'api/session' && $method === 'DELETE') portal_json($app->logout());
         $input = $method === 'GET' ? [] : $app->input();
         if ($route === 'api/desafio' && $method === 'POST') portal_json($app->challenge($input));
         if ($route === 'api/eventos' && $method === 'POST') portal_json($app->interfaceEvent($input));
@@ -24,7 +26,6 @@ try {
         if ($route === 'api/portal' && $method === 'GET') portal_json($app->bootstrap());
         if ($route === 'api/portal' && $method === 'PUT') portal_json($app->save($input));
         if ($route === 'api/session' && $method === 'POST') portal_json($app->login($input));
-        if ($route === 'api/session' && $method === 'DELETE') portal_json($app->logout());
         if (preg_match('#^api/solicitudes/([a-z]+)$#', $route, $match) && $method === 'POST') {
             $result = $app->submit($match[1], $input);
             $status = $result['status']; unset($result['status']);
